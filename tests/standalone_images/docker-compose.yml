@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  verne-test:
+    image: vernemq/vernemq
+    ports:
+      - 1883:1883
+    environment:
+      - DOCKER_VERNEMQ_ACCEPT_EULA=yes
+      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+
+  gcp-emulators:
+    build:
+      context: ./gcp-local
+      dockerfile: Dockerfile
+    ports:
+      - 8085:8085   # Pub/Sub
+      - 8086:8086   # Bigtable
+    command: >
+      bash -c "
+        gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 &
+        gcloud beta emulators bigtable start --host-port=0.0.0.0:8086
+      "
+    environment:
+      - PROJECT_ID=gcplocal-emulator
+
+
+  locust-tester:
+    build:
+      context: ./locust
+      dockerfile: Dockerfile
+    ports:
+      - 8089:8089
+
+networks:
+  logcore-test-net:
+    driver: bridge
+    

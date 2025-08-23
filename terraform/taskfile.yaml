@@ -1,0 +1,7 @@
+version: '3'
+
+tasks:  
+  init:
+    desc: initialize terraform providers
+    cmds: 
+      - terraform init

@@ -1,0 +1,12 @@
+version: '3'
+
+dotenv: ['env']
+
+includes:
+  test:
+    taskfile: ./tests
+    dir: ./tests
+
+  tf: 
+    taskfile: ./terraform
+    dir: ./terraform

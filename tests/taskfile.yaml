@@ -1,0 +1,29 @@
+version: "3"
+
+tasks:
+  compose-up:
+    dir: ./standalone_images
+    desc: start docker compose for test images
+    cmds:
+      - COMPOSE_BAKE=true docker compose up -d
+
+  compose-down:
+    dir: ./standalone_images
+    desc: stop and remove containers
+    cmds:
+      - docker compose down
+
+  compose-rebuild:
+    dir: ./standalone_images
+    desc: stop, rebuild, and start fresh containers
+    cmds:
+      - docker compose down
+      - COMPOSE_BAKE=true docker compose build --no-cache
+      - COMPOSE_BAKE=true docker compose up -d
+
+  gcp-local-tests:
+    dir: ./standalone_images/gcp-local
+    desc: run go unit tests for gcp local emulator services
+    cmds: 
+      - go test 
+
