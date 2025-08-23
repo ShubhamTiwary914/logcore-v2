@@ -3,13 +3,13 @@ import paho.mqtt.client as mqtt
 import time, json
 
 
-broker_host : str = "localhost"
+broker_host : str = "verne-test"
 
 class MqttUser(User):
     wait_time = between(1, 1.5)
     def on_start(self):
         self.client = mqtt.Client()
-        self.client.connect("localhost", 1883, 60)
+        self.client.connect(broker_host, 1883, 60)
         self.client.loop_start()
     
     @task

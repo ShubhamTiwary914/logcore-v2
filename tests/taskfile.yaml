@@ -18,12 +18,24 @@ tasks:
     desc: stop, rebuild, and start fresh containers
     cmds:
       - docker compose down
-      - COMPOSE_BAKE=true docker compose build --no-cache
+      - COMPOSE_BAKE=true docker compose build 
       - COMPOSE_BAKE=true docker compose up -d
 
-  gcp-local-tests:
+  gcp-local:
     dir: ./standalone_images/gcp-local
     desc: run go unit tests for gcp local emulator services
     cmds: 
       - go test 
+
+  mqtt-sub:
+    desc: make a dummy verneMQTT sub (default=> host=localhost, port=1883, topic="dev")
+    cmds: 
+      -  mqtt sub -h "localhost" -p "1883" -t "test/topic"
+
+  mqtt-pub:
+    desc: publish dummy msg into verneMQTT (default=> host=localhost, port=1883, topic="dev") 
+    cmds:
+      - bash -c 'mqtt pub -h "localhost" -p "1883" -t "test/topic" -m "{\"payload\":\"$RANDOM\"}"'
+
+
 

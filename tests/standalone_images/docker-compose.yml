@@ -1,10 +1,11 @@
 version: '3'
 
 services:
-  verne-test:
+  verne-test: #MQTT broker 
     image: vernemq/vernemq
     ports:
-      - 1883:1883
+      - 1883:1883 #tcp-line (conn)
+      - 8888:8888 #metrics 
     environment:
       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
@@ -24,13 +25,31 @@ services:
     environment:
       - PROJECT_ID=gcplocal-emulator
 
-
   locust-tester:
     build:
       context: ./locust
       dockerfile: Dockerfile
     ports:
       - 8089:8089
+
+  prom-server:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prom-server/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - verne-test
+
+  grafana:
+    image: grafana/grafana-enterprise
+    ports:
+      - 3000:3000
+    volumes:
+      - ./graf-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=
+      - GF_SECURITY_ADMIN_PASSWORD=
 
 networks:
   logcore-test-net:
