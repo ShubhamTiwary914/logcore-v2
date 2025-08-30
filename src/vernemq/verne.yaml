@@ -1,0 +1,85 @@
+#Roles for the pods
+#[context: verneMQ setups up clustering with other pods via k8s API, so give that access to make calls]
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vernemq
+  namespace: verne
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vernemq-role
+  namespace: verne
+rules:
+- apiGroups: [""]
+  resources: ["pods", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vernemq-rolebinding
+  namespace: verne
+subjects:
+- kind: ServiceAccount
+  name: vernemq
+  namespace: verne
+roleRef:
+  kind: Role
+  name: vernemq-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+#vernMQ pods deployment config
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vernemq-broker
+  namespace: verne
+  labels:
+    app: broker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: broker
+  template:
+    metadata:
+      labels:
+        app: broker
+    spec:
+      serviceAccountName: vernemq
+      containers:
+      - name:  vernemq
+        image: vernemq/vernemq
+        ports:
+        - containerPort: 1883
+        - containerPort: 8888
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+        - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+          value: "on"
+
+---
+#service for verneMQ pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: vernemq-broker
+  namespace: verne
+spec:
+  selector:
+    app: broker
+  ports:
+  - name: mqtt
+    port: 1883
+    targetPort: 1883
+  - name: metrics
+    port: 8888
+    targetPort: 8888

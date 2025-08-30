@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  grafana-local-k3s:
+    desc: export grafana on port 3000 to monitor the k8s pods & metrics
+    cmds:
+      - export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+      - kubectl --namespace monitoring port-forward $POD_NAME 3000 
+
+  monitor-upgrade:
+    desc: helm upgrade the prom-operator pods (afterany config changes)
+    cmds: 
+      - helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --values {{.CLI_ARGS}} 

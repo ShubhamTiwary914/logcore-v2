@@ -4,4 +4,4 @@ tasks:
   init:
     desc: initialize terraform providers
     cmds: 
-      - terraform init
+      - terraform init 
