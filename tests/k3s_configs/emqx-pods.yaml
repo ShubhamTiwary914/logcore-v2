@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deplopyment
+kind: Deployment
 metadata:
   name: emqx-brokers 
   labels:
