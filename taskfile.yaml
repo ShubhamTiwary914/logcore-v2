@@ -10,3 +10,7 @@ includes:
   tf: 
     taskfile: ./terraform
     dir: ./terraform
+
+  src:
+    taskfile: ./src
+    dir: ./src

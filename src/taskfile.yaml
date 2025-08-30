@@ -1,0 +1,41 @@
+version: '3'
+
+env:
+  VERNE_NAMESPACE: verne
+  MONITOR_NAMESPACE: monitor
+
+tasks:
+  namespaces-create:
+    desc: create all required namespaces
+    cmds:
+      - pwd
+      - kubectl apply -f ./k8s/namespaces/
+
+  monitor-deploy:
+    desc: helm upgrade the prom-operator pods (afterany config changes)
+    cmds: 
+      - >
+        helm upgrade --install kube-prometheus-stack 
+        prometheus-community/kube-prometheus-stack 
+        --namespace $MONITOR_NAMESPACE 
+        --values ./k8s/monitor/prometheus-operator.yaml
+
+  grafana-expose:
+    desc: export grafana on port 3000 to monitor the k8s pods & metrics
+    cmds:
+      - |
+        export POD_NAME=$(kubectl --namespace $MONITOR_NAMESPACE get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
+        kubectl --namespace $MONITOR_NAMESPACE port-forward $POD_NAME 3000 
+
+  verne-deploy:
+    desc: deploy verneMQTT cluster
+    cmds: 
+      - kubectl apply -f ./k8s/vernemq/verne-roles.yaml
+      - kubectl apply -f ./k8s/vernemq/verne-depl.yaml
+      - kubectl apply -f ./k8s/vernemq/verne-service.yaml
+
+  load-test:
+    desc: run locust load test on the services 
+    cmds: 
+      - kubectl apply -f ./k8s/locust/job.yaml
+  
