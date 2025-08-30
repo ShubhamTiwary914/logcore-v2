@@ -32,6 +32,7 @@ tasks:
     cmds: 
       - kubectl apply -f ./k8s/vernemq/verne-roles.yaml
       - kubectl apply -f ./k8s/vernemq/verne-depl.yaml
+      - kubectl apply -f ./k8s/vernemq/verne-service.yaml
 
   load-test:
     desc: run locust load test on the services 
