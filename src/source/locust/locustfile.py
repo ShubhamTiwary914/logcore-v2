@@ -1,9 +1,10 @@
 from locust import User, task, between, events
 import paho.mqtt.client as mqtt
-import time, json
+import time, json 
+import os
 
+broker_host : str = "10.114.157.73" 
 
-broker_host : str = "verne-test"
 
 class MqttUser(User):
     wait_time = between(1, 1.5)
