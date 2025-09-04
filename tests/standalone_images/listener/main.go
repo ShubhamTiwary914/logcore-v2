@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -20,6 +21,20 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 	log.Printf("Connected to MQTT host: %s:%d", broker, port)
+	logSuccess()
+}
+
+func logSuccess() {
+	f, err := os.OpenFile("/tmp/listener.status", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("Failed to write status: %v", err)
+		return
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString("SUCCESS\n"); err != nil {
+		log.Printf("Failed to write status: %v", err)
+	}
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {

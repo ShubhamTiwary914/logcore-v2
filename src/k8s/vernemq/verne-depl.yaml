@@ -1,0 +1,54 @@
+#VernMQTT pods deployment config with sidecar for listener
+#listener -> a golang script (just intake messages) -> push to output stream (in this case, pub/sub)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vernemq-broker
+  namespace: verne
+  labels:
+    app: broker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: broker
+  template:
+    metadata:
+      labels:
+        app: broker
+    spec:
+      serviceAccountName: vernemq 
+      containers:
+
+      - name:  vernemq
+        image: vernemq/vernemq
+        ports:
+        - containerPort: 1883
+        - containerPort: 8888
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+        - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+          value: "on" 
+
+      - name: listener
+        image: sardinesszsz/verne-listener:v1 
+        #wait for verne container at :1883 to be ready
+        command:
+          - sh
+          - -c
+          - |
+            until netstat -tln | grep -q '127.0.0.1:1883'; do
+              sleep 2
+            done
+            exec /app/listenerproc
+        #check log (connection established)
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - grep -q "SUCCESS" /tmp/listener.status
+          initialDelaySeconds: 10
+          periodSeconds: 2
