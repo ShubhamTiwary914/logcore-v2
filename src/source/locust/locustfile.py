@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 import time, json 
 import os
 
-broker_host : str = "verne-test" 
+broker_host : str = "10.114.157.73" 
 
 
 class MqttUser(User):

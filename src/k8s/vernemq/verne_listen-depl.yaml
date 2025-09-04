@@ -1,4 +1,4 @@
-#vernMQ pods deployment config
+#vernMQ pods deployment config with sidecar for listener
 apiVersion: apps/v1
 kind: Deployment
 metadata:
