@@ -30,12 +30,12 @@ tasks:
   mqtt-sub:
     desc: make a dummy verneMQTT sub (default=> host=localhost, port=1883, topic="dev")
     cmds: 
-      -  mqtt sub -h "localhost" -p "1883" -t "test/topic"
+      -  mqtt sub -h "localhost" -p "1883" -t "dev"
 
   mqtt-pub:
     desc: publish dummy msg into verneMQTT (default=> host=localhost, port=1883, topic="dev") 
     cmds:
-      - bash -c 'mqtt pub -h "localhost" -p "1883" -t "test/topic" -m "{\"payload\":\"$RANDOM\"}"'
+      - bash -c 'mqtt pub -h "localhost" -p "1883" -t "dev" -m "{\"payload\":\"$RANDOM\"}"'
 
 
 

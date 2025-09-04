@@ -9,6 +9,23 @@ services:
     environment:
       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "netstat -tln | grep -q '127.0.0.1:1883' && exit 0 || exit 1"
+      ] 
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s 
+
+  listener:
+    build:
+      context: ./listener
+      dockerfile: Dockerfile 
+    depends_on:
+      verne-test:
+        condition: service_healthy
 
   gcp-emulators:
     build:
@@ -54,4 +71,3 @@ services:
 networks:
   logcore-test-net:
     driver: bridge
-    

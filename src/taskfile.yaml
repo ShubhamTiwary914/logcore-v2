@@ -32,11 +32,6 @@ tasks:
         export POD_NAME=$(kubectl --namespace $MONITOR_NAMESPACE get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
         kubectl --namespace $MONITOR_NAMESPACE port-forward $POD_NAME 3000 
 
-  build-locust-image:
-    dir: ./source/locust/
-    desc: rebuild the locust source image from Dockerfile
-    cmds:
-      - docker build -t locust-loader:latest .
 
 
   verne-deploy:
@@ -46,9 +41,17 @@ tasks:
       - kubectl apply -f ./k8s/vernemq/verne-depl.yaml
       - kubectl apply -f ./k8s/vernemq/verne-service.yaml
 
+  build-locust-image:
+    dir: ./source/locust/
+    desc: rebuild the locust source image from Dockerfile
+    cmds:
+      - docker build -t locust-loader:latest .
   load-test:
-    desc: run locust load test on the services 
-    cmds: 
-      - kubectl apply -f ./k8s/locust/job.yaml
+    dir: ./source/locust/
+    desc: run locust web ui locally to start load testing
+    cmds:
+      - zsh -i -c "conda activate logcore && locust"
+ 
+ 
   
   
