@@ -26,6 +26,7 @@ tasks:
       - docker compose down
       - COMPOSE_BAKE=true docker compose build 
       - COMPOSE_BAKE=true docker compose up -d
+      - task tests-init
 
   gcp-local:
     dir: ./standalone_images/gcp-local/pubsub
@@ -57,7 +58,7 @@ tasks:
       - bash -i -c "./create-topic.sh"
 
   pubsub-delete-topic:
-    desc: delete a specific pubsub topic  
+    desc: delete a specific pubsub topic  [ARGS- topic]
     cmds: 
       - curl -X DELETE "$BASE_URL/projects/$PROJECT/topics/{{.CLI_ARGS}}"
 
@@ -67,10 +68,10 @@ tasks:
       - curl -X GET "$BASE_URL/projects/$PROJECT/topics" 
 
   pubsub-publish-dummy:
-    dir: ./standalone_images/gcp-local/pubsub
-    desc: publish a dummy data to pubsub source(local) topic
+    dir: ./standalone_images/gcp-local/pubsub 
+    desc: publish a dummy data to pubsub source(local) topic [ARGS - relation]
     cmds: 
-      - bash -i -c "./publish-dummy.sh"
+      - bash -i -c "./publish-dummy.sh -- {{.CLI_ARGS}}"
   
   bigtable-init:
     dir: ./standalone_images/gcp-local/bigtable
@@ -82,4 +83,22 @@ tasks:
     dir: ./standalone_images/gcp-local/bigtable
     desc: get list of test relations on bigtable(local)
     cmds:
-      - zsh -i -c "conda activate logcore && python query.py"
+      - zsh -i -c "conda activate logcore && python list-relations.py"
+
+  bigtable-query:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: get list of test relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python query.py --relation {{.CLI_ARGS}}"
+
+  bigtable-clear-relation:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: clear all entries of relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python clear.py --relation {{.CLI_ARGS}}"
+
+  tests-init:
+    desc: initialize everything (bigtable relations, pubsub topics)
+    cmds:
+      - task pubsub-init
+      - task bigtable-init
