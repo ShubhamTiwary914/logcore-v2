@@ -1,21 +1,22 @@
 import os
+import sys
 import yaml
-import requests
-import argparse
 import json
+import logging
+import argparse
 import apache_beam as beam
-from apache_beam.options.pipeline_options import PipelineOptions
+from datetime import datetime
+from google.cloud.bigtable.row import DirectRow
 from apache_beam.io.gcp.pubsub import ReadFromPubSub
 from apache_beam.io.gcp.bigtableio import WriteToBigTable
-from google.cloud.bigtable.row import DirectRow
+from apache_beam.options.pipeline_options import PipelineOptions
 
-import logging
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+log_path = os.path.join(os.path.dirname(__file__), "pipeline.log")
+log_file = open(log_path, "a", buffering=1)
+sys.stdout = log_file  
 
-
-# ----------------------------
-# region CLI parsing
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", required=True)
@@ -23,64 +24,28 @@ def get_args():
     parser.add_argument("--host", required=True)
     return parser.parse_args()
 
+def getNowTime():
+    return datetime.now().strftime("%b %d %H:%M:%S")
+
 cliargs : argparse.Namespace = get_args()
 project_id : str= cliargs.project
 topic : str= cliargs.topic
 host : str = cliargs.host
-print(f"CLI_ARGS: \n{yaml.dump(vars(cliargs))}")
-
-
-# ----------------------------
-# region Environment variables
 os.environ["PUBSUB_EMULATOR_HOST"] = host
 os.environ["BIGTABLE_EMULATOR_HOST"] = "localhost:8086"
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/dev/null"
 instance_id = "local"
 
+print(f"CLI_ARGS: \n{yaml.dump(vars(cliargs))}")
+startTime = getNowTime()
+print(f"Started at: {startTime}")
 
-# ----------------------------
-# region Beam Pipeline (after patch)
 options : PipelineOptions = PipelineOptions(
     streaming=True,
     runner="DirectRunner"
 )
 
-def convertBQschema(dict_schemas: dict) -> dict:
-    """
-    Convert {table: [ {name, type}, ... ]} into
-    {table: "name:TYPE,name:TYPE,..."} for Beam BigQuery sink.
-    """
-    converted = {}
-    for table, fields in dict_schemas.items():
-        converted[table] = ",".join(f"{f['name']}:{f['type']}" for f in fields)
-    return converted
-
-# ----------------------------
-# region Helper Methods
-def getSchemasRaw() -> dict:
-    with open("../schemas.json", "r") as f:
-        return json.load(f)
-SCHEMAS = convertBQschema(getSchemasRaw())
-
-
-def list_topics_pubsub(project) -> list[str]:
-    url = f"http://{os.environ['PUBSUB_EMULATOR_HOST']}/v1/projects/{project}/topics"
-    topics = []
-    while url:
-        r = requests.get(url)
-        data = r.json()
-        topics.extconvert_schemasend([t['name'] for t in data.get('topics', [])])
-        next_token = data.get('nextPageToken')
-        if next_token:
-            url = f"http://{os.environ['PUBSUB_EMULATOR_HOST']}/v1/projects/{project}/topics?pageToken={next_token}"
-        else:
-            url = None
-    return topic
-
-
-# ----------------------------
-# region Pipeline & DoFns
 class ToBigTableRowDynamic(beam.DoFn):
     def process(self, element):
         data = json.loads(element.data.decode("utf-8"))
@@ -105,16 +70,22 @@ class WriteTableFn(beam.DoFn):
         )
 
 def main():
-    with beam.Pipeline(options=options) as p:
-        stream = (
-            p
-            | "ReadFromPubSub" >> ReadFromPubSub(topic=topic, with_attributes=True)
-            | "WindowIntoFixed" >> beam.WindowInto(beam.window.FixedWindows(3))  #streaming-window:3s
-            | "ToBigTableRow" >> beam.ParDo(ToBigTableRowDynamic())
-            | "GroupByTable" >> beam.GroupByKey()
-            | "WriteAllTables" >> beam.ParDo(WriteTableFn())
-        )
-
+    try:
+        with beam.Pipeline(options=options) as p:
+            (
+                p
+                | "ReadFromPubSub" >> ReadFromPubSub(topic=topic, with_attributes=True)
+                | "WindowIntoFixed" >> beam.WindowInto(beam.window.FixedWindows(3))  #streaming-window:3s
+                | "ToBigTableRow" >> beam.ParDo(ToBigTableRowDynamic())
+                | "GroupByTable" >> beam.GroupByKey()
+                | "WriteAllTables" >> beam.ParDo(WriteTableFn())
+            )
+    except KeyboardInterrupt:
+        endTime = getNowTime()
+        print(f"\nStarted at: {startTime}\nEnded at: {endTime}\nPipeline Complete!", file=sys.__stdout__,flush=True)
+        print(f"Ended at: {endTime}\n\n")
+    finally:
+        log_file.close()
 
 if __name__ == '__main__':
     main()

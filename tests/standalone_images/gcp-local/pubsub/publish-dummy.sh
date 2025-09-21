@@ -18,7 +18,7 @@ if ! echo "$SCHEMA_JSON" | jq -e --arg rel "$RELATION" '.[$rel] != null' >/dev/n
   exit 1
 fi
 
-for i in $(seq 1 5); do
+for i in $(seq 1 100); do
   MSG="{"
   for row in $(echo "$SCHEMA_JSON" | jq -r --arg rel "$RELATION" '.[$rel][] | @base64'); do
     _jq() { echo "${row}" | base64 --decode | jq -r "${1}"; }
