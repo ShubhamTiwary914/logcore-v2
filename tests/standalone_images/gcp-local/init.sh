@@ -1,0 +1,1 @@
+#Initialize pub/sub test topic, direct runner pipeline & base bigquery relation

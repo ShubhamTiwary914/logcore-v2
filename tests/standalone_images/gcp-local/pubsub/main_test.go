@@ -2,7 +2,7 @@ package gcplocal_test
 
 import (
 	"fmt"
-	PubSub "gcplocal/pubsub"
+	PubSub "gcplocal/test"
 	"reflect"
 	"sort"
 	"testing"

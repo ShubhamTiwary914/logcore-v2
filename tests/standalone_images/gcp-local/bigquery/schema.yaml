@@ -1,0 +1,72 @@
+projects:
+  - id: gcplocal-emulator
+    datasets:
+      - id: iot_data
+        tables:
+          - id: weather_sensor
+            columns:
+              - name: id
+                type: INTEGER
+                mode: REQUIRED
+              - name: timestamp
+                type: TIMESTAMP
+                mode: REQUIRED
+              - name: temperature_c
+                type: FLOAT
+              - name: humidity_percent
+                type: FLOAT
+              - name: pressure_hpa
+                type: FLOAT
+              - name: wind_speed_mps
+                type: FLOAT
+              - name: rainfall_mm
+                type: FLOAT
+            data:
+              - id: 1
+                timestamp: "2025-09-20T10:00:00"
+                temperature_c: 28.5
+                humidity_percent: 65.2
+                pressure_hpa: 1013.2
+                wind_speed_mps: 3.4
+                rainfall_mm: 0.0
+              - id: 2
+                timestamp: "2025-09-20T11:00:00"
+                temperature_c: 29.1
+                humidity_percent: 63.0
+                pressure_hpa: 1012.9
+                wind_speed_mps: 4.1
+                rainfall_mm: 0.5
+
+          - id: machine_metrics
+            columns:
+              - name: id
+                type: INTEGER
+                mode: REQUIRED
+              - name: timestamp
+                type: TIMESTAMP
+                mode: REQUIRED
+              - name: vibration_mms
+                type: FLOAT
+              - name: motor_rpm
+                type: INTEGER
+              - name: power_kw
+                type: FLOAT
+              - name: oil_temp_c
+                type: FLOAT
+              - name: status_code
+                type: INTEGER
+            data:
+              - id: 1
+                timestamp: "2025-09-20T10:05:00"
+                vibration_mms: 2.5
+                motor_rpm: 1450
+                power_kw: 12.3
+                oil_temp_c: 75.2
+                status_code: 0
+              - id: 2
+                timestamp: "2025-09-20T10:10:00"
+                vibration_mms: 3.1
+                motor_rpm: 1475
+                power_kw: 12.8
+                oil_temp_c: 76.1
+                status_code: 1

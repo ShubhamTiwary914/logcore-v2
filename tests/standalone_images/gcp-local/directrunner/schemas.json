@@ -1,0 +1,75 @@
+{
+  "weather_sensor": {
+    "title": "WeatherStation",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "temperature_c": {
+        "type": "number"
+      },
+      "humidity_percent": {
+        "type": "number"
+      },
+      "pressure_hpa": {
+        "type": "number"
+      },
+      "wind_speed_mps": {
+        "type": "number"
+      },
+      "rainfall_mm": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "device_id",
+      "timestamp",
+      "temperature_c",
+      "humidity_percent",
+      "pressure_hpa"
+    ],
+    "additionalProperties": false
+  },
+  "machine_metrics": {
+    "title": "IndustrialMachine",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "vibration_mms": {
+        "type": "number"
+      },
+      "motor_rpm": {
+        "type": "integer"
+      },
+      "power_kw": {
+        "type": "number"
+      },
+      "oil_temp_c": {
+        "type": "number"
+      },
+      "status_code": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "machine_id",
+      "timestamp",
+      "vibration_mms",
+      "motor_rpm",
+      "power_kw",
+      "oil_temp_c"
+    ],
+    "additionalProperties": false
+  }
+}
