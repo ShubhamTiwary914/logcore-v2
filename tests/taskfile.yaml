@@ -71,3 +71,15 @@ tasks:
     desc: publish a dummy data to pubsub source(local) topic
     cmds: 
       - bash -i -c "./publish-dummy.sh"
+  
+  bigtable-init:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: initialize test relations on bigtable(local)
+    cmds:
+      - zsh -i -c "conda activate logcore && python init.py"
+
+  bigtable-get-relations-list:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: get list of test relations on bigtable(local)
+    cmds:
+      - zsh -i -c "conda activate logcore && python query.py"

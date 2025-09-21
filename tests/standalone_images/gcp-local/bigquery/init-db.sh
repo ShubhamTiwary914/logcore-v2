@@ -1,4 +1,0 @@
-export BIGQUERY_EMULATOR_HOST=localhost:9050
-export BIGQUERY_PROJECT_ID=gcplocal-project
-
-python migrations.py

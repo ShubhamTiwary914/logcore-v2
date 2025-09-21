@@ -34,25 +34,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8085:8085   # Pub/Sub
+      - 8086:8086   # BigTable
     command: >
       bash -c "
-        gcloud beta emulators pubsub start --host-port=0.0.0.0:8085  
+        gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 & 
+        gcloud beta emulators bigtable start --host-port=0.0.0.0:8086 &
+        wait
       "
     environment:
       - PROJECT_ID=gcplocal-emulator
 
-  #Big Query emulator (Local emulators doesn't have BQ support)
-  bigq:
-    image: ghcr.io/goccy/bigquery-emulator:latest
-    container_name: bigqlocal
-    ports:
-      - 9050:9050
-      - 9060:9060
-    volumes:
-      - ./gcp-local/bigquery/schema.yaml:/schema.yaml
-    command:
-      - --project=gcplocal-emulator 
-      - --data-from-yaml=/schema.yaml 
 
   locust-tester:
     build:
