@@ -42,6 +42,9 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func main() {
+	hostIP := os.Getenv("HOST_IP")
+	fmt.Println("HOST_IP:", hostIP)
+
 	//connect
 	opts := connectMQTT()
 	client := mqtt.NewClient(opts)

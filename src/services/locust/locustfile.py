@@ -1,9 +1,13 @@
 from locust import User, task, between, events
 import paho.mqtt.client as mqtt
 import time, json 
-import os
+import logging
 
-broker_host : str = "10.114.157.73" 
+logger : logging.Logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+broker_host : str = "10.43.79.115" 
 
 
 class MqttUser(User):
