@@ -19,7 +19,7 @@ class MqttUser(User):
         payload = json.dumps({"ts": ts, "msg": "payload"})
         start_time = time.time()
         try:
-            result = self.client.publish("test/topic", payload)
+            result = self.client.publish("dev", payload)
             result.wait_for_publish()
             total_time = int((time.time() - start_time) * 1000)
             events.request.fire(

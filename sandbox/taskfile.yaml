@@ -40,9 +40,9 @@ tasks:
       -  mqtt sub -h "localhost" -p "1883" -t "dev"
 
   mqtt-pub:
-    desc: publish dummy msg into verneMQTT (default=> host=localhost, port=1883, topic="dev") 
+    desc: generate dummy data to publish into verneMQTT(local) [ARGS- relation]
     cmds:
-      - bash -i -c 'mqtt pub -h "localhost" -p "1883" -t "dev" -m "{\"payload\":\"$RANDOM\"}"'
+      - bash -c "./mqttpub.sh {{.CLI_ARGS}}"
 
   pipeline-run:
     dir: ./standalone_images/gcp-local/directrunner
