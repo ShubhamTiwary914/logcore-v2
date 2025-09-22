@@ -2,3 +2,6 @@
 **/*.env
 **/templates
 
+**/__pycache__
+**/graf-data
+**/*.log

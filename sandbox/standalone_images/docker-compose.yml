@@ -27,20 +27,23 @@ services:
       verne-test:
         condition: service_healthy
 
+  #For Pub Sub
   gcp-emulators:
     build:
       context: ./gcp-local
       dockerfile: Dockerfile
     ports:
       - 8085:8085   # Pub/Sub
-      - 8086:8086   # Bigtable
+      - 8086:8086   # BigTable
     command: >
       bash -c "
-        gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 &
-        gcloud beta emulators bigtable start --host-port=0.0.0.0:8086
+        gcloud beta emulators pubsub start --host-port=0.0.0.0:8085 & 
+        gcloud beta emulators bigtable start --host-port=0.0.0.0:8086 &
+        wait
       "
     environment:
       - PROJECT_ID=gcplocal-emulator
+
 
   locust-tester:
     build:

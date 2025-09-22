@@ -3,6 +3,7 @@ version: '3'
 env:
   VERNE_NAMESPACE: verne
   MONITOR_NAMESPACE: monitor
+  GRAFANA_PASS: prom-operator
 
 tasks:
   ns-create:
@@ -11,7 +12,7 @@ tasks:
       - pwd
       - kubectl apply -f ./k8s/namespaces/
 
-  monitor-destroy:
+  monitor-deploy:
     desc: helm upgrade the prom-operator pods (afterany config changes)
     cmds: 
       - >
@@ -20,7 +21,7 @@ tasks:
         --namespace $MONITOR_NAMESPACE 
         --values ./k8s/monitor/prometheus-operator.yaml
 
-  monitor-deploy:
+  monitor-destroy:
     desc: helm destroy the monitoring stack
     cmds:
       - helm uninstall kube-prometheus-stack --namespace $MONITOR_NAMESPACE
@@ -44,31 +45,74 @@ tasks:
     desc: destroy the verneMQTT & related pods
     cmds: 
       - kubectl delete namespace verne
+  
+  verne-update:
+    desc: update (rolling restart) for verne ns - when making config changes
+    cmds:
+      - kubectl apply -f ./k8s/vernemq/verne-depl.yaml
+      - kubectl rollout restart deployment -n verne
+
+  verne-check-updates:
+    desc: updates history for verneMQ namespace
+    cmds:
+      - kubectl rollout history deployment -n verne
+
+  verne-get-ip:
+    desc: get verne broker load balancer IP to access 
+    cmds:
+      - kubectl get svc vernemq-broker -n verne -o jsonpath='{.spec.clusterIP}'
 
   locust-build:
-    dir: ./source/locust/
+    dir: ./services/locust/
     desc: rebuild the locust source image from Dockerfile
     cmds:
       - docker build -t locust-loader:latest .
+  
+  locust-expose:
+    dir: ./services/locust/
+    desc: run locust web ui locally to start load testing
+    cmds:
+      - zsh -i -c "conda activate logcore && locust"
 
   listener-build:
-    dir: ./source/listener
+    dir: ./services/listener
     desc: rebuild the listener source image from Dockerfile
     cmds:
-      - docker build --no-cache -t verne-listener:v1 .
+      - docker build --no-cache -t verne-listener:v1.1 .
 
   listener-push:
     desc: push the listener image to dockerhub
     cmds: 
-      - docker tag verne-listener:v1 sardinesszsz/verne-listener:v1
-      - docker push sardinesszsz/verne-listener:v1 
+      - docker tag verne-listener:v1.1 sardinesszsz/verne-listener:v1.1
+      - docker push sardinesszsz/verne-listener:v1.1 
 
-  load-test:
-    dir: ./source/locust/
-    desc: run locust web ui locally to start load testing
+  gcp-local-run:
+    dir: ./services/gcp
+    desc: run the gcp local emulator 
     cmds:
-      - zsh -i -c "conda activate logcore && locust"
- 
- 
+      - bash -c "./run.sh"
   
+  gcp-local-init:
+    dir: ./services/gcp
+    desc: initialize gcp local pubsub(topics) & bigtable(relations)
+    cmds:
+      - bash -c ""./pubsub/create-topic.sh
+      - zsh -i -c "conda activate logcore && python ./bigtable/init.py"
   
+  gcp-local-bigtable-get-relations-list:
+    dir: ./services/gcp/bigtable
+    desc: get list of test relations on bigtable(local)
+    cmds:
+      - zsh -i -c "conda activate logcore && python list-relations.py"
+
+  gcp-local-bigtable-query:
+    dir: ./services/gcp/bigtable
+    desc: get list of test relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python query.py --relation {{.CLI_ARGS}}"
+
+  gcp-local-bigtable-clear-relation:
+    dir: ./services/gcp/bigtable
+    desc: clear all entries of relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python clear.py --relation {{.CLI_ARGS}}"

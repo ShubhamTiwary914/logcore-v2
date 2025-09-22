@@ -4,8 +4,8 @@ dotenv: ['env']
 
 includes:
   test:
-    taskfile: ./tests
-    dir: ./tests
+    taskfile: ./sandbox
+    dir: ./sandbox
 
   tf: 
     taskfile: ./terraform

@@ -1,0 +1,104 @@
+version: "3"
+
+env:  
+  BASE_URL: "http://localhost:8085/v1"
+  PROJECT: "gcplocal-emulator"
+  HOST: "localhost:8085"
+  TOPIC: "projects/$PROJECT/topics/source"
+
+tasks:
+  compose-up:
+    dir: ./standalone_images
+    desc: start docker compose for test images
+    cmds:
+      - COMPOSE_BAKE=true docker compose up -d
+
+  compose-down:
+    dir: ./standalone_images
+    desc: stop and remove containers
+    cmds:
+      - docker compose down
+
+  compose-rebuild:
+    dir: ./standalone_images
+    desc: stop, rebuild, and start fresh containers
+    cmds:
+      - docker compose down
+      - COMPOSE_BAKE=true docker compose build 
+      - COMPOSE_BAKE=true docker compose up -d
+      - task tests-init
+
+  gcp-local:
+    dir: ./standalone_images/gcp-local/pubsub
+    desc: run go unit tests for gcp local emulator services
+    cmds: 
+      - go test 
+
+  mqtt-sub:
+    desc: make a dummy verneMQTT sub (default=> host=localhost, port=1883, topic="dev")
+    cmds: 
+      -  mqtt sub -h "localhost" -p "1883" -t "dev"
+
+  mqtt-pub:
+    desc: publish dummy msg into verneMQTT (default=> host=localhost, port=1883, topic="dev") 
+    cmds:
+      - bash -i -c 'mqtt pub -h "localhost" -p "1883" -t "dev" -m "{\"payload\":\"$RANDOM\"}"'
+
+  pipeline-run:
+    dir: ./standalone_images/gcp-local/directrunner
+    desc: run the apache beam DirectRunner Pipeline (local PubSub <-> local BigQuery) 
+    cmds: 
+      - zsh -i -c "
+        conda activate logcore && python pipeline.py --project=$PROJECT --topic=$TOPIC --host=$HOST" 
+
+  pubsub-init:
+    dir: ./standalone_images/gcp-local/pubsub
+    desc: Create test pub-sub topics (weather_sensor & machine_metrics)
+    cmds: 
+      - bash -i -c "./create-topic.sh"
+
+  pubsub-delete-topic:
+    desc: delete a specific pubsub topic  [ARGS- topic]
+    cmds: 
+      - curl -X DELETE "$BASE_URL/projects/$PROJECT/topics/{{.CLI_ARGS}}"
+
+  pubsub-list-topic:
+    desc: delete a specific pubsub topic  
+    cmds:
+      - curl -X GET "$BASE_URL/projects/$PROJECT/topics" 
+
+  pubsub-publish-dummy:
+    dir: ./standalone_images/gcp-local/pubsub 
+    desc: publish a dummy data to pubsub source(local) topic [ARGS - relation]
+    cmds: 
+      - bash -i -c "./publish-dummy.sh -- {{.CLI_ARGS}}"
+  
+  bigtable-init:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: initialize test relations on bigtable(local)
+    cmds:
+      - zsh -i -c "conda activate logcore && python init.py"
+
+  bigtable-get-relations-list:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: get list of test relations on bigtable(local)
+    cmds:
+      - zsh -i -c "conda activate logcore && python list-relations.py"
+
+  bigtable-query:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: get list of test relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python query.py --relation {{.CLI_ARGS}}"
+
+  bigtable-clear-relation:
+    dir: ./standalone_images/gcp-local/bigtable
+    desc: clear all entries of relations on bigtable(local) [ARGS- relation]
+    cmds:
+      - zsh -i -c "conda activate logcore && python clear.py --relation {{.CLI_ARGS}}"
+
+  tests-init:
+    desc: initialize everything (bigtable relations, pubsub topics)
+    cmds:
+      - task pubsub-init
+      - task bigtable-init
