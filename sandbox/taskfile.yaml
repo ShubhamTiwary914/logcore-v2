@@ -26,7 +26,8 @@ tasks:
       - docker compose down
       - COMPOSE_BAKE=true docker compose build 
       - COMPOSE_BAKE=true docker compose up -d
-      - task tests-init
+      - task pubsub-init
+      - task bigtable-init
 
   gcp-local:
     dir: ./standalone_images/gcp-local/pubsub
@@ -72,6 +73,12 @@ tasks:
     desc: publish a dummy data to pubsub source(local) topic [ARGS - relation]
     cmds: 
       - bash -i -c "./publish-dummy.sh -- {{.CLI_ARGS}}"
+
+  pubsub-listen-source:
+    dir: ./standalone_images/gcp-local/pubsub
+    desc: subsribe and listen to pubsub source(local)
+    cmds: 
+      - zsh -i -c "conda activate logcore && python sub.py"
   
   bigtable-init:
     dir: ./standalone_images/gcp-local/bigtable

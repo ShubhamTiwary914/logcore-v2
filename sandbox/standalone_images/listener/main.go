@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 
-	"encoding/json"
-
 	"cloud.google.com/go/pubsub/v2"
 	pb "cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -16,10 +14,12 @@ import (
 )
 
 const (
-	broker    string = "verne-test"
-	port      int    = 1883
-	mqttTopic string = "dev"
-	projectID string = "gcplocal-emulator"
+	broker        string = "verne-test"
+	port          int    = 1883
+	mqttTopicPath string = "mqtt-source"
+	projectID     string = "gcplocal-emulator"
+	pubsubTopic   string = "source"
+	pubsubHost    string = "gcp-emulators:8085"
 
 	QOS         byte = 0
 	PUB_WORKERS int  = 6
@@ -29,25 +29,23 @@ const (
 	PUB_HEALTHFILE_PATH      = "/tmp/pub.status"
 )
 
-const ()
-
 var (
 	pubctx    context.Context
 	pubclient *pubsub.Client
 	pubJobs   chan PublishJob
+	publisher *pubsub.Publisher
 )
 
 // Worker pool for publishing
 type PublishJob struct {
-	TopicID string
-	Message string
+	message []byte
 }
 
 func startWorkers() {
 	for i := 0; i < PUB_WORKERS; i++ {
 		go func(id int) {
 			for job := range pubJobs {
-				publishTopic(pubctx, pubclient, job.TopicID, job.Message)
+				publishTopic(job.message)
 			}
 		}(i)
 	}
@@ -55,11 +53,14 @@ func startWorkers() {
 
 func main() {
 	//only local mode(remove in prod)
-	if err := os.Setenv("PUBSUB_EMULATOR_HOST", "localhost:8085"); err != nil {
+	if err := os.Setenv("PUBSUB_EMULATOR_HOST", pubsubHost); err != nil {
 		log.Fatalf("Failed to set emulator host: %v", err)
 	}
-	//connect to pubsub (+channel for pub)
+	//connect to pubsub (+channel for publishing)
 	pubctx, pubclient = confPubSub(projectID)
+	publisher = pubclient.Publisher(fmt.Sprintf("projects/%s/topics/%s", projectID, pubsubTopic))
+	defer pubclient.Close()
+	defer publisher.Stop()
 	pubJobs = make(chan PublishJob, QUEUE_LIM)
 	startWorkers()
 
@@ -86,9 +87,9 @@ func connectMQTT() *mqtt.ClientOptions {
 }
 
 func subscribeMQTT(client mqtt.Client) {
-	token := client.Subscribe(mqttTopic, QOS, mqttMessageHandler)
+	token := client.Subscribe(mqttTopicPath, QOS, mqttMessageHandler)
 	token.Wait()
-	log.Printf("Subscribed to topic: %s", mqttTopic)
+	log.Printf("Subscribed to topic: %s", mqttTopicPath)
 }
 
 var mqttConnectHandler mqtt.OnConnectHandler = func(mqtt.Client) {
@@ -110,16 +111,9 @@ func logSuccess(statusFile string) {
 }
 
 var mqttMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-	var payload map[string]interface{}
-	if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
-		log.Printf("Failed to parse payload: %v", err)
-		return
-	}
-	pubtopicID := payload["tag"].(string)
-	log.Printf("Now pushing to pubsub topic: %s", pubtopicID)
+	log.Printf("Received Message in topic %s: \n%s\n", msg.Topic(), msg.Payload())
 	//offload push to publish channel
-	pubJobs <- PublishJob{TopicID: pubtopicID, Message: string(msg.Payload())}
+	pubJobs <- PublishJob{message: msg.Payload()}
 }
 
 var mqttConnectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
@@ -149,12 +143,7 @@ func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 	return ctx, client
 }
 
-func publishTopic(ctx context.Context, client *pubsub.Client, topicID string, msg string) {
-	topic := client.Publisher(fmt.Sprintf("projects/%s/topics/%s", projectID, topicID))
-	res := topic.Publish(ctx, &pubsub.Message{Data: []byte(msg)})
-	_, err := res.Get(ctx)
-	if err != nil {
-		log.Printf("Failed to publish message: %v", err)
-	}
-	fmt.Println("Published message:", msg)
+func publishTopic(msg []byte) {
+	publisher.Publish(pubctx, &pubsub.Message{Data: msg})
+	log.Printf("Queued Message for publishing: %s", msg)
 }
