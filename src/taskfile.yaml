@@ -148,6 +148,4 @@ tasks:
     dir: ./services/gcp/pubsub
     desc: subsribe and listen to pubsub source(local)
     cmds: 
-      - zsh -i -c "conda activate logcore && python sub.py"
-
- 
+      - zsh -i -c "conda activate logcore && python sub.py" 
