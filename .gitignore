@@ -3,5 +3,6 @@
 **/templates
 
 **/__pycache__
+**/node_modules
 **/graf-data
 **/*.log

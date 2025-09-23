@@ -72,17 +72,17 @@ tasks:
     cmds:
       - zsh -i -c "./mqttpub.sh {{.CLI_ARGS}}"
 
-  locust-build:
-    dir: ./services/locust/
-    desc: rebuild the locust source image from Dockerfile
+  k6-test:
+    dir: ./services/k6/
+    desc: load test vernMQTT k3s with k6 [ARGS- control from taskfile]
+    env:
+      RELATION: weather_sensor
+      DURATION: 10
+      INTERVAL: 1
+      VUS: 5
     cmds:
-      - docker build -t locust-loader:latest .
-  
-  locust-expose:
-    dir: ./services/locust/
-    desc: run locust web ui locally to start load testing
-    cmds:
-      - zsh -i -c "conda activate logcore && locust"
+      - VERNE_IP=$(kubectl get svc -n verne vernemq-broker -o jsonpath='{.spec.clusterIP}')
+      - RELATION=$RELATION DURATION=$DURATION INTERVAL=$INTERVAL VERNE_IP=$VERNE_IP k6 run --vus $VUS --duration ${DURATION}s pub.js 
 
   listener-build:
     dir: ./services/listener
@@ -112,8 +112,14 @@ tasks:
     dir: ./services/gcp
     desc: run the gcp local emulator 
     cmds:
-      - bash -c "./run.sh"
+      - COMPOSE_BAKE=true docker compose up -d
   
+  gcp-local-remove:
+    dir: ./services/gcp
+    desc: take down gcp local emulator
+    cmds: 
+      - docker compose down
+
   gcp-local-init:
     dir: ./services/gcp
     desc: initialize gcp local pubsub(topics) & bigtable(relations)

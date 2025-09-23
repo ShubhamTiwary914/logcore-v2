@@ -1,12 +1,12 @@
-import { sleep } from "k6";
 import { Trend, Counter } from "k6/metrics";
 import { Client } from "k6/x/mqtt";
+import exec from 'k6/execution';
 
 const brokerAddress = "mqtt://localhost:1883";
 const topic = "dev";
 
 export const options = {
-  vus: 100,
+  vus: 1,
   duration: "10s",
   thresholds: {
     mqtt_message_duration: ["p(50)<200", "p(95)<500", "p(99)<1000"],
@@ -19,27 +19,32 @@ const messageBytes = new Trend("mqtt_message_bytes");
 const mqttConnections = new Counter("mqtt_concurrent_connections")
 
 export default function () {
-  const client = new Client();
-  client.connect(brokerAddress);
-  mqttConnections.add(1);
+  const client = new Client()
 
-  const durationMs = (__ENV.TEST_DURATION * 1000);
-  const start = Date.now();
-  const stopAt = start + durationMs; 
+  client.on("connect", async () => {
+    mqttConnections.add(1)
+    console.log("Connected to MQTT broker")
+    console.log(`Interval: ${__ENV.INTERVAL} && Duration: ${__ENV.DURATION}`)
 
-  while (Date.now() < stopAt) {
-    const payload = `Hello from k6 client ${__VU}`;
-    const t0 = Date.now();
-    client.publish(topic, payload);
-    const t1 = Date.now();
+    const intervalId = setInterval(() => {
+      let payload = `hello from k6 user: ${__VU}`
+      let beforePub = Date.now()
+      client.publish(topic, payload)
+      let afterPub = Date.now()
+      messageDuration.add(afterPub-beforePub)
+      messagesSent.add(1)
+      messageBytes.add(payload.length*2)
+    }, __ENV.INTERVAL*1000)
 
-    messagesSent.add(1);
-    messageDuration.add(t1 - t0);
-    messageBytes.add(payload.length);
+    setTimeout(() => {
+      clearInterval(intervalId)
+      client.end()
+    }, __ENV.DURATION*1000)
+  })
 
-    //1-2s delay
-    sleep(Math.random() + 1); 
-  }
+  client.on("end", () => {
+    console.log("Disconnected from MQTT broker")
+  })
 
-  client.end();
+  client.connect(brokerAddress)
 }
