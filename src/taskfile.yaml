@@ -4,6 +4,10 @@ env:
   VERNE_NAMESPACE: verne
   MONITOR_NAMESPACE: monitor
   GRAFANA_PASS: prom-operator
+  GCP_LOCAL_BASE_URL: "http://localhost:8085/v1"
+  GCP_PROJECT: "gcplocal-emulator"
+  GCP_HOST: "localhost:8085"
+  GCP_TOPIC: "projects/$GCP_PROJECT/topics/source"
 
 tasks:
   ns-create:
@@ -62,6 +66,12 @@ tasks:
     cmds:
       - kubectl get svc vernemq-broker -n verne -o jsonpath='{.spec.clusterIP}'
 
+  verne-mqtt-pub:
+    dir: ./scripts
+    desc: publish MQTT messages to verne k3s cluster [ARGS - (relation, count)]
+    cmds:
+      - zsh -i -c "./mqttpub.sh {{.CLI_ARGS}}"
+
   locust-build:
     dir: ./services/locust/
     desc: rebuild the locust source image from Dockerfile
@@ -78,13 +88,25 @@ tasks:
     dir: ./services/listener
     desc: rebuild the listener source image from Dockerfile
     cmds:
-      - docker build --no-cache -t verne-listener:v1.1 .
+      - docker build --no-cache -t verne-listener:latest .
 
   listener-push:
-    desc: push the listener image to dockerhub
+    desc: push the listener image to dockerhub [ARGS- version]
     cmds: 
-      - docker tag verne-listener:v1.1 sardinesszsz/verne-listener:v1.1
-      - docker push sardinesszsz/verne-listener:v1.1 
+      - docker tag verne-listener:latest sardinesszsz/verne-listener:{{.CLI_ARGS}}
+      - docker push sardinesszsz/verne-listener:{{.CLI_ARGS}}
+
+  directrunner-pipeline-run:
+    dir: ./services/gcp/pipeline
+    desc: beam directrunner local pipeline (pubsub -> beam -> bigtable)
+    cmds:
+      - zsh -i -c "conda activate logcore && python ./pipeline.py --project=$GCP_PROJECT --topic=$GCP_TOPIC --host=$GCP_HOST"
+
+  directrunner-pipeline-view-logs:
+    dir: ./services/gcp/pipeline
+    desc: read logfile of beam directrunner local (start, stop, messages, etc)
+    cmds: 
+      - bash -c "tail -f ./pipeline.log"
 
   gcp-local-run:
     dir: ./services/gcp
@@ -116,3 +138,14 @@ tasks:
     desc: clear all entries of relations on bigtable(local) [ARGS- relation]
     cmds:
       - zsh -i -c "conda activate logcore && python clear.py --relation {{.CLI_ARGS}}"
+ 
+  gcp-local-pubsub-list-topic:
+    desc: delete a specific pubsub topic  
+    cmds:
+      - curl -X GET "$GCP_LOCAL_BASE_URL/projects/$GCP_PROJECT/topics" 
+
+  gcp-local-pubsub-listen-source:
+    dir: ./services/gcp/pubsub
+    desc: subsribe and listen to pubsub source(local)
+    cmds: 
+      - zsh -i -c "conda activate logcore && python sub.py" 

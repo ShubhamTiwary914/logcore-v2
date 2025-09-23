@@ -2,22 +2,25 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
 	"cloud.google.com/go/pubsub/v2"
+	pb "cloud.google.com/go/pubsub/v2/apiv1/pubsubpb"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
-	//target= verne container in same pod (hence TCP at localhost:1883)
-	broker        string = "localhost"
+	broker        string = "verne-test"
 	port          int    = 1883
 	mqttTopicPath string = "mqtt-source"
 	projectID     string = "gcplocal-emulator"
 	pubsubTopic   string = "source"
+	pubsubHost    string = "gcp-emulators:8085"
 
-	//MQTT QOS=0 (fully async, no ACKs)
 	QOS         byte = 0
 	PUB_WORKERS int  = 6
 	QUEUE_LIM   int  = 100
@@ -27,24 +30,17 @@ const (
 )
 
 var (
-	pubsubPort string = "8085"
-	pubsubHost string = "gcp-emulators:8085"
-)
-
-var (
 	pubctx    context.Context
 	pubclient *pubsub.Client
 	pubJobs   chan PublishJob
 	publisher *pubsub.Publisher
 )
 
-// worker pool data packet (for publishing -> pubsub)
+// Worker pool for publishing
 type PublishJob struct {
 	message []byte
 }
 
-// publish pubsub concurrent worker pool
-// recommended: set ~CPU cores in node
 func startWorkers() {
 	for i := 0; i < PUB_WORKERS; i++ {
 		go func(id int) {
@@ -55,28 +51,14 @@ func startWorkers() {
 	}
 }
 
-// only local mode(remove in prod)
-func localConfigs() {
-	//read host_ip (for k3s local) -> node where gcp emulator runs
-	data, err := os.ReadFile("/envs/host_ip")
-	if err != nil {
-		panic(err)
-	}
-	hostIP := string(trimSpace(data))
-	pubsubHost = sprintf("%s:%s", hostIP, pubsubPort)
-
+func main() {
+	//only local mode(remove in prod)
 	if err := os.Setenv("PUBSUB_EMULATOR_HOST", pubsubHost); err != nil {
 		log.Fatalf("Failed to set emulator host: %v", err)
 	}
-	log.Printf("\nPUBSUB_HOST: %s", os.Getenv("PUBSUB_EMULATOR_HOST"))
-}
-
-func main() {
-	localConfigs()
-
 	//connect to pubsub (+channel for publishing)
 	pubctx, pubclient = confPubSub(projectID)
-	publisher = pubclient.Publisher(sprintf("projects/%s/topics/%s", projectID, pubsubTopic))
+	publisher = pubclient.Publisher(fmt.Sprintf("projects/%s/topics/%s", projectID, pubsubTopic))
 	defer pubclient.Close()
 	defer publisher.Stop()
 	pubJobs = make(chan PublishJob, QUEUE_LIM)
@@ -94,11 +76,10 @@ func main() {
 }
 
 // ----------------------
-// region verneMQTT
-
+// region MQTT (verne)
 func connectMQTT() *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(sprintf("tcp://%s:%d", broker, port))
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
 	opts.SetDefaultPublishHandler(mqttMessageHandler)
 	opts.OnConnect = mqttConnectHandler
 	opts.OnConnectionLost = mqttConnectLostHandler
@@ -108,7 +89,7 @@ func connectMQTT() *mqtt.ClientOptions {
 func subscribeMQTT(client mqtt.Client) {
 	token := client.Subscribe(mqttTopicPath, QOS, mqttMessageHandler)
 	token.Wait()
-	log.Printf("Subscribed to MQTT topic: %s", mqttTopicPath)
+	log.Printf("Subscribed to topic: %s", mqttTopicPath)
 }
 
 var mqttConnectHandler mqtt.OnConnectHandler = func(mqtt.Client) {
@@ -140,7 +121,16 @@ var mqttConnectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client,
 }
 
 // ----------------------
-// region pubsub
+// region Pubsub
+func createPubSubTopic(ctx *context.Context, client *pubsub.Client, topicID string) {
+	topicName := fmt.Sprintf("projects/%s/topics/%s", projectID, topicID)
+	_, err := client.TopicAdminClient.CreateTopic(*ctx, &pb.Topic{Name: topicName})
+	if err != nil {
+		if st, ok := status.FromError(err); !ok || st.Code() != codes.AlreadyExists {
+			log.Fatalf("create topic: %v", err)
+		}
+	}
+}
 
 func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 	ctx := context.Background()
@@ -156,63 +146,4 @@ func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 func publishTopic(msg []byte) {
 	publisher.Publish(pubctx, &pubsub.Message{Data: msg})
 	log.Printf("Queued Message for publishing: %s", msg)
-}
-
-// ---------------------
-// region helpers
-func trimSpace(b []byte) []byte {
-	start, end := 0, len(b)
-	for start < end && (b[start] == ' ' || b[start] == '\n' || b[start] == '\t' || b[start] == '\r') {
-		start++
-	}
-	for end > start && (b[end-1] == ' ' || b[end-1] == '\n' || b[end-1] == '\t' || b[end-1] == '\r') {
-		end--
-	}
-	return b[start:end]
-}
-
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	sign := ""
-	if n < 0 {
-		sign = "-"
-		n = -n
-	}
-	digits := []byte{}
-	for n > 0 {
-		d := byte(n % 10)
-		digits = append([]byte{d + '0'}, digits...)
-		n /= 10
-	}
-	return sign + string(digits)
-}
-
-// alternative for fmt.Sprintf() method
-func sprintf(format string, args ...interface{}) string {
-	out := []byte{}
-	argIndex := 0
-	for i := 0; i < len(format); i++ {
-		if format[i] == '%' && i+1 < len(format) {
-			i++
-			switch format[i] {
-			case 's':
-				if v, ok := args[argIndex].(string); ok {
-					out = append(out, v...)
-				}
-				argIndex++
-			case 'd':
-				if v, ok := args[argIndex].(int); ok {
-					out = append(out, itoa(v)...)
-				}
-				argIndex++
-			default:
-				out = append(out, '%', format[i])
-			}
-		} else {
-			out = append(out, format[i])
-		}
-	}
-	return string(out)
 }

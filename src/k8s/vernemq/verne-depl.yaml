@@ -1,5 +1,5 @@
-#VernMQTT pods deployment config with sidecar for listener
-#listener -> a golang script (just intake messages) -> push to output stream (in this case, pub/sub)
+#vernMQTT pods deployment config with sidecar for listener
+#listener -> a golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
 
 apiVersion: apps/v1
 kind: Deployment
@@ -50,7 +50,7 @@ spec:
             value: "on" 
 
         - name: listener
-          image: sardinesszsz/verne-listener:v1.1  
+          image: sardinesszsz/verne-listener:v1.3  
           #wait for verne container at :1883 to be ready
           command:
             - sh
@@ -64,10 +64,12 @@ spec:
           #check log (connection established)
           readinessProbe:
             exec:
+              #check if connected to both verneMQTT + PubSub 
               command:
                 - sh
                 - -c
-                - grep -q "SUCCESS" /tmp/listener.status
+                - 'grep -q "SUCCESS" /tmp/listener.status' 
+                # - 'grep -q "SUCCESS" /tmp/listener.status && grep -q "SUCCESS" /tmp/pub.status' 
             initialDelaySeconds: 10
             periodSeconds: 2
           volumeMounts:

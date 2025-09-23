@@ -50,9 +50,10 @@ class ToBigTableRowDynamic(beam.DoFn):
     def process(self, element):
         data = json.loads(element.data.decode("utf-8"))
         row_key = data["id"].encode("utf-8")
-        table_id = element.attributes.get("relation")
+        #all messages asserts a field "relation" -> defines bigtable table
+        table_id = data["relation"]
         row = DirectRow(row_key=row_key)
-        print(f"Writing to BigTable relation - {table_id} key:{row_key}...")
+        print(f"Writing to BigTable relation:{table_id}  key:{data['id']}...")
         for k, v in data.items():
             if k != "id":
                 row.set_cell("cf1", k, str(v).encode("utf-8"))
@@ -62,7 +63,6 @@ class ToBigTableRowDynamic(beam.DoFn):
 class WriteTableFn(beam.DoFn):
     def process(self, table_rows):
         table_id, rows_list = table_rows
-        print(f"Writing to relation - {table_id}")
         yield rows_list | f"Write_{table_id}" >> WriteToBigTable(
             project_id=project_id,
             instance_id=instance_id,
