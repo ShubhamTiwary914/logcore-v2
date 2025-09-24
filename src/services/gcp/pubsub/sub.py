@@ -11,12 +11,6 @@ subscriber = pubsub_v1.SubscriberClient()
 topic_path = f"projects/{project_id}/topics/{topic_id}"
 subscription_path = f"projects/{project_id}/subscriptions/{subscription_id}"
 
-# create subscription if it doesn't exist
-try:
-    subscriber.get_subscription(subscription_path)
-except Exception:
-    subscriber.create_subscription(name=subscription_path, topic=topic_path)
-
 def callback(message):
     print(f"Received message: {message.data.decode('utf-8')}, attributes: {message.attributes}")
     message.ack()

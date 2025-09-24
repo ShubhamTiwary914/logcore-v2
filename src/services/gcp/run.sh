@@ -1,4 +1,4 @@
-docker run -d -it \
+docker run -d -it -p 8085:8085 -p 8086:8086 \
   --network=host \
   gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators \
   bash -c "
