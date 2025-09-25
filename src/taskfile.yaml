@@ -1,15 +1,13 @@
 version: '3'
 
-env:
-  VERNE_NAMESPACE: verne
-  MONITOR_NAMESPACE: monitor
-  GRAFANA_PASS: prom-operator
-  GCP_LOCAL_BASE_URL: "http://localhost:8085/v1"
-  GCP_PROJECT: "gcplocal-emulator"
-  GCP_HOST: "localhost:8085"
-  GCP_TOPIC: "projects/$GCP_PROJECT/topics/source"
+dotenv: ['.env']
 
 tasks:
+  tester:
+    cmds:
+      - echo $VERNE_NAMESPACE
+      - echo "test"
+
   ns-create:
     desc: create all required namespaces
     cmds:
@@ -65,6 +63,18 @@ tasks:
     desc: get verne broker load balancer IP to access 
     cmds:
       - kubectl get svc vernemq-broker -n verne -o jsonpath='{.spec.clusterIP}'
+
+  verne-set-configs:
+    dir: ./k8s/config
+    desc: set configmap for verne namespace
+    cmds: 
+      - kubectl apply -f ./verne-conf.yaml
+
+  verne-get-configs:
+    dir: ./scripts
+    desc: get current set configmap for verne namespace
+    cmds:
+      - bash -c "./verne-get-configs.sh"
 
   verne-mqtt-pub:
     dir: ./scripts
