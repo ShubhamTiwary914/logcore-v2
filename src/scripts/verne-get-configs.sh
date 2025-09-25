@@ -1,0 +1,1 @@
+kubectl get configmap verne-conf -n verne -o go-template='{{range $k,$v := .data}}{{$k}}: {{$v}}{{"\n"}}{{end}}'

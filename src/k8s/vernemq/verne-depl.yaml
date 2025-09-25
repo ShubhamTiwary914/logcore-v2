@@ -43,21 +43,22 @@ spec:
           ports:
           - containerPort: 1883
           - containerPort: 8888
-          env:
-          - name: DOCKER_VERNEMQ_ACCEPT_EULA
-            value: "yes"
-          - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
-            value: "on" 
+          envFrom:
+          - configMapRef:
+              name: verne-conf
 
         - name: listener
           image: sardinesszsz/verne-listener:v1.3  
+          envFrom:
+          - configMapRef: 
+              name: verne-conf
           #wait for verne container at :1883 to be ready
           command:
             - sh
             - -c
             - |
-              export HOST_IP=$(cat /envs/host_ip)
-              until netstat -tln | grep -q '127.0.0.1:1883'; do
+              export HOST_IP=$(cat $HOST_PATH)
+              until netstat -tln | grep -q "127.0.0.1:$MQTT_PORT"; do
                 sleep 2
               done
               exec /app/listenerproc
@@ -68,8 +69,7 @@ spec:
               command:
                 - sh
                 - -c
-                - 'grep -q "SUCCESS" /tmp/listener.status' 
-                # - 'grep -q "SUCCESS" /tmp/listener.status && grep -q "SUCCESS" /tmp/pub.status' 
+                - 'grep -q "SUCCESS" $MQTT_CONNECT_SUCCESS_PATH && grep -q "SUCCESS" $PUBSUB_CONNECT_SUCCESS_PATH' 
             initialDelaySeconds: 10
             periodSeconds: 2
           volumeMounts:
