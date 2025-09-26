@@ -6,6 +6,8 @@ on:
       - 'master'
     paths:
       - 'src/services/listener/**'
+  workflow_dispatch:
+    
 
 jobs:
   build-image:
