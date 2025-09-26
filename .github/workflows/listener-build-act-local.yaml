@@ -1,15 +1,12 @@
+#workflow for local test with act (ref: https://github.com/nektos/act)
+#just removing the final checksum check (fails in this local actions runner)
 name: Build Listener Image and push to Dockerhub
 run-name: listener image build on ${{ github.event_name }} by ${{ github.actor }}
-on: 
-  push:
-    branches:
-      - 'master'
-    paths:
-      - 'src/services/listener/**'
+on:  
   workflow_dispatch:
     
 jobs:
-  build-image:
+  build-local:
     name: Push Listener's Image to DockerHub
     runs-on: ubuntu-latest
     permissions:
@@ -43,10 +40,10 @@ jobs:
           tags: |
             sardinesszsz/verne-listener:latest 
           labels: ${{ steps.extractor.outputs.labels }}
-
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-name: index.docker.io/${{ secrets.LISTENER_IMAGE }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
+      
+      # - name: Generate artifact attestation
+      #   uses: actions/attest-build-provenance@v3
+      #   with:
+      #     subject-name: index.docker.io/${{ secrets.LISTENER_IMAGE }}
+      #     subject-digest: ${{ steps.push.outputs.digest }}
+      #     push-to-registry: true
