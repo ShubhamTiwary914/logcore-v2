@@ -3,7 +3,7 @@ run-name: listener image build on ${{ github.event_name }} by ${{ github.actor }
 on: 
   push:
     branches:
-      - 'main'
+      - 'master'
     paths:
       - 'src/services/listener/**'
 
@@ -39,7 +39,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.extractor.outputs.tags }}
+          tags: |
+            sardinesszsz/verne-listener:latest 
           labels: ${{ steps.extractor.outputs.labels }}
 
       - name: Generate artifact attestation
