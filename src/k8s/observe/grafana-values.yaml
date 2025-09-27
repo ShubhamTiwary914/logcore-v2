@@ -1,0 +1,21 @@
+image:
+  repository: grafana/grafana
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+datasources:
+  configMaps:
+    - name: grafana-datasources
+
+
+service:
+  type: NodePort
+  port: 80
