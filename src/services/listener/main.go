@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	utils "listener/utils"
-	"log"
 	"os"
 
 	"cloud.google.com/go/pubsub/v2"
@@ -67,9 +66,10 @@ func localConfigs() {
 	pubsubHost = utils.Sprintf("%s:%s", hostIP, pubsubPort)
 
 	if err := os.Setenv("PUBSUB_EMULATOR_HOST", pubsubHost); err != nil {
-		utils.Log(utils.LOG_ERROR, utils.Sprintf("Failed to set emulator HOST: %v", err))
+		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to set emulator HOST: %v", err))
 	}
-	utils.Log(utils.LOG_INFO, utils.Sprintf("Set PubSub Emulator Host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("set pubsub Emulator Host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
+	utils.Log(utils.LOG_WARN, "currently running localhost pubsub via gcp-emulator, change in production to real gcp!")
 }
 
 func main() {
@@ -110,12 +110,11 @@ func ConnectMQTT() *mqtt.ClientOptions {
 func SubscribeMQTT(client mqtt.Client) {
 	token := client.Subscribe(MqttTopicPath, QOS, mqttMessageHandler)
 	token.Wait()
-	log.Printf("Subscribed to MQTT topic: %s", MqttTopicPath)
-	utils.Log(utils.LOG_INFO, utils.Sprintf("subscribed to MQTT topic: %s", MqttTopicPath))
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("subscribed to MQTT topic: %s", MqttTopicPath))
 }
 
 var mqttConnectHandler mqtt.OnConnectHandler = func(mqtt.Client) {
-	utils.Log(utils.LOG_INFO, utils.Sprintf("connected to MQTT host: %s:%d", Broker, Port))
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("connected to MQTT host: %s:%d", Broker, Port))
 	logSuccess(LISTENER_HEALTHFILE_PATH)
 }
 
@@ -129,11 +128,13 @@ func logSuccess(statusFile string) {
 	defer f.Close()
 	if _, err := f.WriteString("SUCCESS\n"); err != nil {
 		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to write status at: %s  error: %v", statusFile, err))
+		return
 	}
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("successfully written status at: %s", statusFile))
 }
 
 var mqttMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	log.Printf("Received Message in topic %s: \n%s\n", msg.Topic(), msg.Payload())
+	utils.Log(utils.LOG_INFO, utils.Sprintf("received message in topic: %s: %s", msg.Topic(), msg.Payload()))
 	//offload push to publish channel
 	pubJobs <- PublishJob{message: msg.Payload()}
 }
@@ -150,13 +151,12 @@ func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 	if err != nil {
 		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to create pubsub client: %v", err))
 	}
-	utils.Log(utils.LOG_INFO, utils.Sprintf("connected to pubsub host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("connected to pubsub host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
 	logSuccess(PUB_HEALTHFILE_PATH)
 	return ctx, client
 }
 
 func publishTopic(msg []byte) {
 	publisher.Publish(pubctx, &pubsub.Message{Data: msg})
-	log.Printf("Queued Message for publishing: %s", msg)
-	utils.Log(utils.LOG_INFO, utils.Sprintf("queued messages"))
+	utils.Log(utils.LOG_INFO, utils.Sprintf("queued message for publishing to pubsub: %s", msg))
 }
