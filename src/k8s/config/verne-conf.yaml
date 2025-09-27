@@ -12,5 +12,6 @@ data:
   MQTT_PORT: "1883"
   MQTT_CONNECT_SUCCESS_PATH: "/tmp/listener.status"
   PUBSUB_CONNECT_SUCCESS_PATH: "/tmp/pub.status"
-  MQTT_TOPIC:
-  
+  MQTT_TOPIC: "mqtt-source"
+  MQTT_BROKER_ADDRESS: "localhost" 
+  PUBSUB_HOST: "gcp-emulators:8085"
