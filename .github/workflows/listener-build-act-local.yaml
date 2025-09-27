@@ -1,6 +1,6 @@
 #workflow for local test with act (ref: https://github.com/nektos/act)
 #just removing the final checksum check (fails in this local actions runner)
-name: Build Listener Image and push to Dockerhub
+name: Build Listener Image (locally - act) 
 run-name: listener image build on ${{ github.event_name }} by ${{ github.actor }}
 on:  
   workflow_dispatch:

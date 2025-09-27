@@ -22,14 +22,14 @@ var (
 
 var (
 	//target= verne container in same pod (hence TCP at localhost:1883)
-	broker      string = "localhost"
-	port        int    = 1883
+	Broker      string = os.Getenv("MQTT_BROKER_ADDRESS")
+	Port        int    = 1883
 	projectID   string = "gcplocal-emulator"
 	pubsubTopic string = "source"
 
-	mqttTopicPath string = os.Getenv("MQTT_TOPIC")
+	MqttTopicPath string = os.Getenv("MQTT_TOPIC")
 	pubsubPort    string = "8085"
-	pubsubHost    string = "gcp-emulators:8085"
+	pubsubHost    string = os.Getenv("PUBSUB_HOST")
 )
 
 var (
@@ -84,12 +84,12 @@ func main() {
 	startWorkers()
 
 	//connect to verneMQTT
-	opts := connectMQTT()
+	opts := ConnectMQTT()
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	subscribeMQTT(client)
+	SubscribeMQTT(client)
 
 	//keep alive
 	select {}
@@ -98,24 +98,24 @@ func main() {
 // ----------------------
 // region verneMQTT
 
-func connectMQTT() *mqtt.ClientOptions {
+func ConnectMQTT() *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(utils.Sprintf("tcp://%s:%d", broker, port))
+	opts.AddBroker(utils.Sprintf("tcp://%s:%d", Broker, Port))
 	opts.SetDefaultPublishHandler(mqttMessageHandler)
 	opts.OnConnect = mqttConnectHandler
 	opts.OnConnectionLost = mqttConnectLostHandler
 	return opts
 }
 
-func subscribeMQTT(client mqtt.Client) {
-	token := client.Subscribe(mqttTopicPath, QOS, mqttMessageHandler)
+func SubscribeMQTT(client mqtt.Client) {
+	token := client.Subscribe(MqttTopicPath, QOS, mqttMessageHandler)
 	token.Wait()
-	log.Printf("Subscribed to MQTT topic: %s", mqttTopicPath)
-	utils.Log(utils.LOG_INFO, utils.Sprintf("subscribed to MQTT topic: %s", mqttTopicPath))
+	log.Printf("Subscribed to MQTT topic: %s", MqttTopicPath)
+	utils.Log(utils.LOG_INFO, utils.Sprintf("subscribed to MQTT topic: %s", MqttTopicPath))
 }
 
 var mqttConnectHandler mqtt.OnConnectHandler = func(mqtt.Client) {
-	utils.Log(utils.LOG_INFO, utils.Sprintf("connected to MQTT host: %s:%d", broker, port))
+	utils.Log(utils.LOG_INFO, utils.Sprintf("connected to MQTT host: %s:%d", Broker, Port))
 	logSuccess(LISTENER_HEALTHFILE_PATH)
 }
 

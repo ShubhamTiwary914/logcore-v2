@@ -106,6 +106,12 @@ tasks:
       - docker tag verne-listener:latest sardinesszsz/verne-listener:{{.CLI_ARGS}}
       - docker push sardinesszsz/verne-listener:{{.CLI_ARGS}}
 
+  listener-github-act-local:
+    dir: ../
+    desc: run & test github actions CI/CD work locally to push lustener image to dockerhub (dependency - act)
+    cmds:
+      - act -P act -P ubuntu-latest=catthehacker/ubuntu:act-latest --secret-file .github.env --bind /var/run/docker.sock:/var/run/docker.sock -j build-local
+
   directrunner-pipeline-run:
     dir: ./services/gcp/pipeline
     desc: beam directrunner local pipeline (pubsub -> beam -> bigtable)
