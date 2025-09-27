@@ -41,14 +41,18 @@ spec:
         - name:  vernemq
           image: vernemq/vernemq
           ports:
-          - containerPort: 1883
-          - containerPort: 8888
+            - name: tcpline
+              port: 1883
+              targetPort: 1883
+            - name: metrics
+              port: 8888
+              targetPort: 8888
           envFrom:
           - configMapRef:
               name: verne-conf
 
         - name: listener
-          image: sardinesszsz/verne-listener:v1.3  
+          image: sardinesszsz/verne-listener:latest 
           envFrom:
           - configMapRef: 
               name: verne-conf
