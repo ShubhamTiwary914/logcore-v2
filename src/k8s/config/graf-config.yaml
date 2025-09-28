@@ -14,3 +14,13 @@ data:
       access: proxy
       isDefault: false
       editable: true
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      #target: prom server in "observe" namespace
+      url: http://prometheus-server.observe.svc.cluster.local
+      access: proxy
+      isDefault: false
+      editable: true

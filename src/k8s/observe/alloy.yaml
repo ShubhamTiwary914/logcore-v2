@@ -2,9 +2,9 @@ alloy:
   configMap:  
     content: |-
       logging {
-        level = "info"
-        format = "logfmt"
-      }
+          level = "info"
+          format = "logfmt"
+        }
 
       loki.write "default" {
         endpoint {
@@ -12,7 +12,7 @@ alloy:
         }
       }
 
-       discovery.kubernetes "pod" {
+        discovery.kubernetes "pod" {
         role = "pod"
       }
 
