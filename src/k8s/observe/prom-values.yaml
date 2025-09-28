@@ -1,0 +1,19 @@
+
+#scrape vernemq container metrics at http:8888/metrics
+extraScrapeConfigs: |
+  - job_name: 'vernemq-metrics'  
+    scrape_interval: 20s
+    metrics_path: /metrics
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['verne']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+        target_label: app
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: ${1}:8888
+ 
