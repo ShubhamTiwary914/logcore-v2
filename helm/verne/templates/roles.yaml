@@ -1,6 +1,5 @@
 #roles for the pods
 #[context: verneMQ setups up clustering with other pods via k8s API, so give that access to make calls]
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:

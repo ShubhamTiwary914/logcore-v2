@@ -18,5 +18,9 @@ create_k8s_ns
 
 
 #pull containers
+docker pull sardinesszsz/k6-verne:latest
+docker pull sardinesszsz/verne-listener:latest
 
+
+#setup the helm charts for the proj
 

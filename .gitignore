@@ -1,6 +1,5 @@
 
 **/*.env
-**/templates
 
 **/__pycache__
 **/node_modules

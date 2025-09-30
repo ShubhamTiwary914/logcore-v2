@@ -5,7 +5,7 @@ on:
     branches:
       - 'master'
     paths:
-      - 'src/services/k6/**'
+      - 'services/k6/**'
   workflow_dispatch:
     
 jobs:
@@ -39,8 +39,8 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: ./src/services/k6
-          file: ./src/services/k6/Dockerfile
+          context: ./services/k6
+          file: ./services/k6/Dockerfile
           push: true
           tags: |
             sardinesszsz/k6-verne:latest 
