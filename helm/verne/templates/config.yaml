@@ -2,11 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: verne-conf
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }} 
 data:
   # verne container 
-  DOCKER_VERNEMQ_ACCEPT_EULA: {{ .Values.verneConfig.acceptEula }}
-  DOCKER_VERNEMQ_ALLOW_ANONYMOUS: {{ .Values.verneConfig.allowAnonymous }}
+  DOCKER_VERNEMQ_ACCEPT_EULA: {{ .Values.verneConfig.acceptEula | quote }}
+  DOCKER_VERNEMQ_ALLOW_ANONYMOUS: {{ .Values.verneConfig.allowAnonymous | quote }}
   # listener container
   HOST_PATH: {{ .Values.listenerConfig.hostPath | quote }}
   MQTT_PORT: {{ .Values.listenerConfig.mqttPort | quote }}

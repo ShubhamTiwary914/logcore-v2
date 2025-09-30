@@ -1,5 +1,6 @@
 replicaCount: 5
 env: dev 
+namespace: verne
 
 verneConfig:
   acceptEula: "yes"

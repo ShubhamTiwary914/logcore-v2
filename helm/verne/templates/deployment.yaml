@@ -5,7 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vernemq-broker
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }} 
   labels:
     app: broker
 spec:
