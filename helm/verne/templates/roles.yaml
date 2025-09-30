@@ -4,14 +4,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: vernemq
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }} 
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: vernemq-role
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }}
 rules:
 - apiGroups: [""]
   resources: ["pods", "endpoints"]
@@ -24,11 +24,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: vernemq-rolebinding
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }}
 subjects:
 - kind: ServiceAccount
   name: vernemq
-  namespace: verne
+  namespace: {{ .Release.Namespace | default .Values.namespace }}
 roleRef:
   kind: Role
   name: vernemq-role
