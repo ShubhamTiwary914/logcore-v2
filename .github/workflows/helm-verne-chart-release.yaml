@@ -1,4 +1,4 @@
-name: Helm Chart Release
+name: Helm Chart release for Verne to GHCR OCI registry
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Authenticate GitHub Container Registry
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHCR_ACCESS_TOKEN }}
         run: echo $GITHUB_TOKEN | helm registry login ghcr.io -u ShubhamTiwary914 --password-stdin
 
       - name: Package Helm chart
