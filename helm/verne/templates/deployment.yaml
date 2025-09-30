@@ -9,17 +9,18 @@ metadata:
   labels:
     app: broker
 spec:
-  replicas: 5
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: broker
   template:
     metadata:
       labels:
-        app: broker
+        app: broker 
     spec:
       serviceAccountName: vernemq 
 
+{{- if eq .Values.env "dev" }}
       #shared emptyDir vol
       volumes:
         - name: envs
@@ -36,6 +37,7 @@ spec:
           volumeMounts:
             - name: envs
               mountPath: /envs
+{{- end }}
 
       containers:
         - name:  vernemq
@@ -59,7 +61,6 @@ spec:
             - sh
             - -c
             - |
-              export HOST_IP=$(cat $HOST_PATH)
               until netstat -tln | grep -q "127.0.0.1:$MQTT_PORT"; do
                 sleep 2
               done
@@ -74,6 +75,9 @@ spec:
                 - 'grep -q "SUCCESS" $MQTT_CONNECT_SUCCESS_PATH && grep -q "SUCCESS" $PUBSUB_CONNECT_SUCCESS_PATH' 
             initialDelaySeconds: 10
             periodSeconds: 2
+
+{{- if eq .Values.env "dev" }}
           volumeMounts:
           - name: envs
             mountPath: /envs
+{{- end }}

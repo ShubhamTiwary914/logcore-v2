@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: verne-conf
+  namespace: verne
+data:
+  # verne container 
+  DOCKER_VERNEMQ_ACCEPT_EULA: {{ .Values.verneConfig.acceptEula }}
+  DOCKER_VERNEMQ_ALLOW_ANONYMOUS: {{ .Values.verneConfig.allowAnonymous }}
+  # listener container
+  HOST_PATH: {{ .Values.listenerConfig.hostPath | quote }}
+  MQTT_PORT: {{ .Values.listenerConfig.mqttPort | quote }}
+  MQTT_CONNECT_SUCCESS_PATH: {{ .Values.listenerConfig.mqttSuccessPath | quote }}
+  PUBSUB_CONNECT_SUCCESS_PATH: {{ .Values.listenerConfig.pubsubSuccessPath | quote }}
+  MQTT_TOPIC: {{ .Values.listenerConfig.mqttTopic | quote }}
+  MQTT_BROKER_ADDRESS: {{ .Values.listenerConfig.brokerAddress | quote }}
+  PUBSUB_HOST: {{ .Values.listenerConfig.pubsubHost | quote }}
