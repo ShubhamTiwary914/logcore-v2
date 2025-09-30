@@ -30,7 +30,7 @@ jobs:
         run: helm package helm/verne --destination ./helm/release
 
       - name: Push Helm chart to GHCR
-        run: helm push ./helm/release/verne-*.tgz oci://ghcr.io/ShubhamTiwary914/verne
+        run: helm push ./helm/release/verne-*.tgz oci://ghcr.io/ShubhamTiwary914
 
       - name: Upload chart artifact (optional)
         uses: actions/upload-artifact@v4
