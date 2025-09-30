@@ -17,7 +17,19 @@ jobs:
     steps: 
       - name: Check out the repo
         uses: actions/checkout@v5
+
+      - name: Set Go path
+        run: echo "GOPATH=${{ github.workspace }}/.go" >> $GITHUB_ENV
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ github.workspace }}/.go/pkg/mod
+            ${{ github.workspace }}/.go/bin
+          key: go-mod-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
       
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -34,16 +46,9 @@ jobs:
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: ./src/services/listener
-          file: ./src/services/listener/Dockerfile
+          context: ./services/listener
+          file: ./services/listener/Dockerfile
           push: true
           tags: |
             sardinesszsz/verne-listener:latest 
           labels: ${{ steps.extractor.outputs.labels }}
-      
-      # - name: Generate artifact attestation
-      #   uses: actions/attest-build-provenance@v3
-      #   with:
-      #     subject-name: index.docker.io/${{ secrets.LISTENER_IMAGE }}
-      #     subject-digest: ${{ steps.push.outputs.digest }}
-      #     push-to-registry: true
