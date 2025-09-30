@@ -3,6 +3,12 @@ version: '3'
 dotenv: ['.env']
 
 tasks:
+  _run-local:
+    dir: ./scripts
+    desc: setup & run everything locally!
+    cmds:
+      -  bash -c "./run-local.sh"
+
   ns-create:
     desc: create all required namespaces
     cmds:
@@ -20,12 +26,18 @@ tasks:
     cmds:
       - bash -c "./grafana-getip.sh" 
  
-  observe-update-loki:
+  observe-loki-update:
     dir: ./k8s/observe
-    desc: upgrade the loki helm pods on observe
+    desc: upgrade the loki helm pods on observe ns
     cmds:
       - helm upgrade loki grafana/loki -n $MONITOR_NAMESPACE -f ./loki-values.yaml
 
+  observe-prom-update:
+    dir: ./k8s/observe
+    desc: upgrade the prometheus pods on observe ns
+    cmds:
+      - helm upgrade prometheus prometheus-community/prometheus -n $MONITOR_NAMESPACE -f ./prom-values.yaml
+  
   verne-deploy:
     desc: deploy verneMQTT cluster
     deps: [ns-create]
@@ -74,8 +86,7 @@ tasks:
       - zsh -i -c "./mqttpub.sh {{.CLI_ARGS}}"
 
   k6-test:
-    dir: ./services/k6/
-    desc: load test vernMQTT k3s with k6 [ARGS- control from taskfile]
+    desc: load test verneMQTT k3s with k6 [ARGS- control from taskfile]
     env:
       RELATION: weather_sensor
       DURATION: 10
@@ -83,7 +94,31 @@ tasks:
       VUS: 5
     cmds:
       - VERNE_IP=$(kubectl get svc -n verne vernemq-broker -o jsonpath='{.spec.clusterIP}')
-      - RELATION=$RELATION DURATION=$DURATION INTERVAL=$INTERVAL VERNE_IP=$VERNE_IP k6 run --vus $VUS --duration ${DURATION}s pub.js 
+      - docker run --rm --network host \
+          -e RELATION=$RELATION \
+          -e DURATION=$DURATION \
+          -e INTERVAL=$INTERVAL \
+          -e VUS=$VUS \
+          -e VERNE_IP=$VERNE_IP \
+          k6-verne:v1
+
+  k6-build:
+    dir: ./services/k6
+    desc: rebuild the k6 source image from Dockerfile
+    cmds:
+      - docker build --no-cache -t k6-verne:latest
+
+  k6-image-push:  
+    desc: push the k6 verne image to dockerhub [ARGS- version]
+    cmds:
+      - docker tag k6-verne:latest sardinesszsz/k6-verne:{{.CLI_ARGS}}
+      - docker push sardinesszsz/k6-verne:{{.CLI_ARGS}}
+    
+  k6-github-act-local:
+    dir: ../
+    desc: run & test github actions CI/CD work locally to push K6 image to dockerhub (dependency - act)
+    cmds:
+      - act -P act -P ubuntu-latest=catthehacker/ubuntu:act-latest --secret-file .github.env --bind /var/run/docker.sock:/var/run/docker.sock -j build-k6-local
 
   listener-build:
     dir: ./services/listener
@@ -101,7 +136,7 @@ tasks:
     dir: ../
     desc: run & test github actions CI/CD work locally to push lustener image to dockerhub (dependency - act)
     cmds:
-      - act -P act -P ubuntu-latest=catthehacker/ubuntu:act-latest --secret-file .github.env --bind /var/run/docker.sock:/var/run/docker.sock -j build-local
+      - act -P act -P ubuntu-latest=catthehacker/ubuntu:act-latest --secret-file .github.env --bind /var/run/docker.sock:/var/run/docker.sock -j build-listener-local
 
   directrunner-pipeline-run:
     dir: ./services/gcp/pipeline

@@ -1,16 +1,16 @@
-name: Build Listener Image and push to Dockerhub
-run-name: listener image build on ${{ github.event_name }} by ${{ github.actor }}
-on: 
+name: Build K6 Image & push to dockerhub 
+run-name: k6 image build on ${{ github.event_name }} by ${{ github.actor }}
+on:  
   push:
     branches:
       - 'master'
     paths:
-      - 'src/services/listener/**'
+      - 'src/services/k6/**'
   workflow_dispatch:
     
 jobs:
-  build-listener:
-    name: Push Listener's Image to DockerHub
+  build-k6:
+    name: Push K6's Image to DockerHub
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -31,22 +31,25 @@ jobs:
         id: extractor
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.LISTENER_IMAGE }}
-
+          images: ${{ secrets.K6_IMAGE }}
+          labels: |
+            org.opencontainers.image.description=updated on $(date +'%Y-%m-%d') - K6 load testing tool to work with logcore-v2 project (makes MQTT calls to verne-broker)
+          
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: ./src/services/listener
-          file: ./src/services/listener/Dockerfile
+          context: ./src/services/k6
+          file: ./src/services/k6/Dockerfile
           push: true
           tags: |
-            sardinesszsz/verne-listener:latest 
+            sardinesszsz/k6-verne:latest 
           labels: ${{ steps.extractor.outputs.labels }}
-
+      
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3
         with:
-          subject-name: index.docker.io/${{ secrets.LISTENER_IMAGE }}
+          subject-name: index.docker.io/${{ secrets.K6_IMAGE }}
           subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: false
+          push-to-registry: false 
+      
