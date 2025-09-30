@@ -1,13 +1,13 @@
 #workflow for local test with act (ref: https://github.com/nektos/act)
 #just removing the final checksum check (fails in this local actions runner)
-name: Build Listener Image (locally - act) 
-run-name: listener image build on ${{ github.event_name }} by ${{ github.actor }}
+name: Build K6 Image (locally - act) 
+run-name: k6 image build on ${{ github.event_name }} by ${{ github.actor }}
 on:  
   workflow_dispatch:
     
 jobs:
-  build-listener-local:
-    name: Push Listener's Image to DockerHub
+  build-k6-local:
+    name: Push K6's Image to DockerHub
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -28,22 +28,18 @@ jobs:
         id: extractor
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.LISTENER_IMAGE }}
-
+          images: ${{ secrets.K6_IMAGE }}
+          labels: |
+            org.opencontainers.image.description=updated on $(date +'%Y-%m-%d') - K6 load testing tool to work with logcore-v2 project (makes MQTT calls to verne-broker)
+          
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: ./src/services/listener
-          file: ./src/services/listener/Dockerfile
+          context: ./src/services/k6
+          file: ./src/services/k6/Dockerfile
           push: true
           tags: |
-            sardinesszsz/verne-listener:latest 
+            sardinesszsz/k6-verne:latest 
           labels: ${{ steps.extractor.outputs.labels }}
       
-      # - name: Generate artifact attestation
-      #   uses: actions/attest-build-provenance@v3
-      #   with:
-      #     subject-name: index.docker.io/${{ secrets.LISTENER_IMAGE }}
-      #     subject-digest: ${{ steps.push.outputs.digest }}
-      #     push-to-registry: true
