@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
+COPY main.go ./  
+COPY utils/ ./utils/  
+
 
 RUN go build -o listenerproc
 
