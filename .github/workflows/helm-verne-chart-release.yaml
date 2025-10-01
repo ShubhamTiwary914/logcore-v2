@@ -1,4 +1,4 @@
-name: Helm Chart release for Verne to GHCR OCI registry
+name: Helm Chart release for Verne to charts branch
 
 on:
   push:
@@ -21,19 +21,17 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Authenticate GitHub Container Registry
-        env:
-          GITHUB_TOKEN: ${{ secrets.GHCR_ACCESS_TOKEN }}
-        run: echo $GITHUB_TOKEN | helm registry login ghcr.io -u ShubhamTiwary914 --password-stdin
-
-      - name: Package Helm chart
+      - name: Package Helm chart to tempdir
         run: helm package helm/verne --destination $RUNNER_TEMP 
 
-      - name: Push Helm chart to GHCR
-        run: helm push  $RUNNER_TEMP/verne-*.tgz oci://ghcr.io/shubhamtiwary914/logcore/helm-charts
+      - name: Switch & Push to charts branch 
+        run: | 
+          git fetch origin charts || true 
+          git checkout charts || git checkout --orphan charts 
+          cp -r $RUNNER_TEMP/* . 
+          git add . 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "update charts from $GITHUB_SHA" || echo "No changes" 
+          git push origin charts
 
-      - name: Upload chart artifact (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: verne-chart
-          path: ./helm/release/verne-*.tgz
