@@ -1,12 +1,12 @@
 
 ## Table of Contents
 
-- [About](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#about)
-- [Architecture](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#architecture)
-  - [Rough Workings](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#rough-overview-of-the-tools-and-workings)
-  - [Dev vs Prod Environments](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#difference-between-the-local-version-and-on-gcp-premise)
--  [Local Setup](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#setting-up-locally)
--  [Checklist](https://github.com/ShubhamTiwary914/logcore-v2/edit/master/README.md#things-to-add)
+- [About](https://github.com/ShubhamTiwary914/logcore-v2#about)
+- [Architecture](https://github.com/ShubhamTiwary914/logcore-v2#architecture)
+  - [Rough Workings](https://github.com/ShubhamTiwary914/logcore-v2#rough-overview-of-the-tools-and-workings)
+  - [Dev vs Prod Environments](https://github.com/ShubhamTiwary914/logcore-v2#difference-between-the-local-version-and-on-gcp-premise)
+-  [Local Setup](https://github.com/ShubhamTiwary914/logcore-v2#setting-up-locally)
+-  [Checklist](https://github.com/ShubhamTiwary914/logcore-v2#things-to-add)
 
 
 ---
@@ -101,6 +101,7 @@ Use this URL on browser to view the Grafana Dashboard with the credentials
 
 The dashboard section has custom metrics being shown, previews:
 <img width="1557" height="961" alt="screenshot_2025-10-01-174858" src="https://github.com/user-attachments/assets/6a001d11-6505-49aa-b482-00f97d43b783" />
+<img width="1049" height="744" alt="screenshot_2025-10-01-180430" src="https://github.com/user-attachments/assets/4c4cc03c-eaac-4cd8-b236-9ecc0d80f350" />
 
 
 And in case you forget/remove the logs, getting back the address & creds. to access grafana:
@@ -116,4 +117,5 @@ task observe-grafana-access
 - [ ] NextJS dashboard to add additional schemas and user side data trace
 - [ ] Migrating the cluster from K3s and GCP emulators to GCP
 - [ ] Benchmarking comparison between local nodes & GKE after final deployments
+
 
