@@ -1,6 +1,7 @@
 ## run and setup everything locally
 ## --------------------------------
 
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -86,14 +87,6 @@ fi
 OBSERVE_DIR="../k8s/observe"
 log_info "Setting up observability stack..."
 
-#graf config
-if kubectl get configmap grafana-dashboards -n observe >/dev/null 2>&1; then
-    log_skip "Grafana configmap already exists"
-else
-    log_info "Creating Grafana configmap..."
-    kubectl apply -f "$OBSERVE_DIR/graf-config.yaml"
-fi
-
 #loki
 if helm list -n observe | grep -q "loki"; then
     log_skip "Loki chart already installed"
@@ -116,8 +109,8 @@ if kubectl get configmap grafana-dashboards -n observe >/dev/null 2>&1; then
 else
     log_info "Creating Grafana dashboards configmap..."
     kubectl create configmap grafana-dashboards -n observe \
-      --from-file=listener-logs.json="$OBSERVE_DIR/graf-exports/listener-logs.json" \
-      --from-file=verne-metrics.json="$OBSERVE_DIR/graf-exports/verne-metrics.json"
+      --from-file=listener-logs.json=$OBSERVE_DIR/graf-exports/listener-logs.json \
+      --from-file=verne-metrics.json=$OBSERVE_DIR/graf-exports/verne-metrics.json
 fi
 
 #graf setup
