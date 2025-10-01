@@ -110,6 +110,39 @@ task observe-grafana-access
 ```
 
 
+Finally, let's use K6 to perform load test as virtual users:
+```bash
+task _run-k6-test -- <duration(seconds)> <users>
+```
+
+Example:
+```bash
+task _run-k6-test -- 60 100  #runs 100 virtual users for 60 seconds
+```
+
+Logs for the example here:
+```bash
+  █ TOTAL RESULTS 
+
+    CUSTOM
+    mqtt_calls....................: 6771   112.778573/s
+    mqtt_concurrent_connections...: 111    1.848829/s
+    mqtt_message_duration.........: avg=0      min=0      med=0    max=0    p(90)=0    p(95)=0   
+    mqtt_messages_sent............: 6549   109.080915/s
+
+    EXECUTION
+    iteration_duration............: avg=54.07s min=1.79ms med=1m0s max=1m0s p(90)=1m0s p(95)=1m0s
+    iterations....................: 111    1.848829/s
+    vus...........................: 100    min=100      max=100
+    vus_max.......................: 100    min=100      max=100
+
+    NETWORK
+    data_received.................: 0 B    0 B/s
+    data_sent.....................: 1.2 MB 20 kB/s
+```
+
+
+
 ---
 
 # Things to add:
@@ -117,5 +150,6 @@ task observe-grafana-access
 - [ ] NextJS dashboard to add additional schemas and user side data trace
 - [ ] Migrating the cluster from K3s and GCP emulators to GCP
 - [ ] Benchmarking comparison between local nodes & GKE after final deployments
+
 
 
