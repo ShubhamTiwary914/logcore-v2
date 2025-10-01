@@ -15,16 +15,16 @@ tasks:
       - kubectl create ns observe
       - kubectl create ns verne
       
-  observe-grafana-getpass:
-    desc: get pass token for grafana web UI login (k3s)
-    cmds:
-      - kubectl get secret --namespace $MONITOR_NAMESPACE grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-
-  observe-grafana-get-webip:
-    dir: ./scripts
-    desc: get http URL for grafana web UI (k3s)
-    cmds:
-      - bash -c "./grafana-getip.sh" 
+  observe-grafana-access:
+    desc: access the grafana web ui (get address & details)
+    cmds: 
+      - |
+        GRAFANA_IP=$(kubectl get svc grafana -n observe -o jsonpath='{.spec.clusterIP}')
+        GRAFANA_PORT=3045
+        GRAFANA_PASS=$(kubectl get secret grafana -n observe -o jsonpath="{.data.admin-password}" | base64 --decode)
+        echo "Grafana Dashboard URL: http://${GRAFANA_IP}:${GRAFANA_PORT}"
+        echo "Username: admin"
+        echo "Password: ${GRAFANA_PASS}"
  
   observe-loki-update:
     dir: ./k8s/observe
@@ -38,6 +38,11 @@ tasks:
     cmds:
       - helm upgrade prometheus prometheus-community/prometheus -n $MONITOR_NAMESPACE -f ./values/prom.yaml
   
+  verne-helm-pack-install:
+    desc: install verne helm package
+    cmds:
+      - helm install verne verne/verne -n verne
+
   verne-get-ip:
     desc: get verne broker load balancer IP to access 
     cmds:

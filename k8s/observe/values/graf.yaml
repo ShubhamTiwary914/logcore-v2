@@ -12,9 +12,38 @@ resources:
     memory: 512Mi
 
 datasources:
-  configMaps:
-    - name: grafana-datasources
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.observe.svc.cluster.local
+      access: proxy
+      isDefault: false
+      editable: true
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.observe.svc.cluster.local
+      access: proxy
+      isDefault: true
+      editable: true
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+
+dashboardsConfigMaps:
+  default: "grafana-dashboards"
 
 service:
   type: NodePort
-  port: 3045 
+  port: 3045
