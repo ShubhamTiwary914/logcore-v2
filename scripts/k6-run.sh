@@ -22,4 +22,4 @@ docker run --rm --network host \
   -e INTERVAL=1 \
   -e VUS="$VUS" \
   -e VERNE_IP="$VERNE_IP" \
-  k6-verne:v1
+  k6-verne:latest
