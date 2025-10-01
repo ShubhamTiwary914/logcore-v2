@@ -9,6 +9,13 @@ tasks:
     cmds:
       -  bash -c "./run-local.sh"
 
+  _stop-local:
+    dir: ./scripts
+    desc: stop the K3s deployment & containers running locally (for the proj)
+    cmds:
+      -  bash -c "./stop-local.sh"
+
+
   ns-create:
     desc: create all required namespaces
     cmds:
@@ -46,24 +53,13 @@ tasks:
   verne-get-ip:
     desc: get verne broker load balancer IP to access 
     cmds:
-      - kubectl get svc vernemq-broker -n verne -o jsonpath='{.spec.clusterIP}'
+      - kubectl get svc vernemq-broker -n verne -o jsonpath='{.spec.clusterIP}' 
 
-  k6-test:
-    desc: load test verneMQTT k3s with k6 [ARGS- control from taskfile]
-    env:
-      RELATION: weather_sensor
-      DURATION: 10
-      INTERVAL: 1
-      VUS: 5
+  _run-k6-test:
+    dir: ./scripts/
+    desc: load test verneMQTT k3s with k6 [ARGS- duration(secs), vus]
     cmds:
-      - VERNE_IP=$(kubectl get svc -n verne vernemq-broker -o jsonpath='{.spec.clusterIP}')
-      - docker run --rm --network host \
-          -e RELATION=$RELATION \
-          -e DURATION=$DURATION \
-          -e INTERVAL=$INTERVAL \
-          -e VUS=$VUS \
-          -e VERNE_IP=$VERNE_IP \
-          k6-verne:v1
+      - bash -c "./k6-run.sh {{.CLI_ARGS}}"
 
   k6-build:
     dir: ./services/k6
