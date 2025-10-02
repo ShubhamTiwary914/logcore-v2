@@ -100,7 +100,7 @@ Use this URL on browser to view the Grafana Dashboard with the credentials
 > ```
 
 The dashboard section has custom metrics being shown, previews:
-<img width="1557" height="961" alt="screenshot_2025-10-01-174858" src="https://github.com/user-attachments/assets/6a001d11-6505-49aa-b482-00f97d43b783" />
+<img width="1516" height="911" alt="screenshot_2025-10-02-141335" src="https://github.com/user-attachments/assets/a735b574-fd04-4e7c-acbf-f84ca5c9d647" />
 <img width="1049" height="744" alt="screenshot_2025-10-01-180430" src="https://github.com/user-attachments/assets/4c4cc03c-eaac-4cd8-b236-9ecc0d80f350" />
 
 
@@ -150,6 +150,7 @@ Logs for the example here:
 - [ ] NextJS dashboard to add additional schemas and user side data trace
 - [ ] Migrating the cluster from K3s and GCP emulators to GCP
 - [ ] Benchmarking comparison between local nodes & GKE after final deployments
+
 
 
 
