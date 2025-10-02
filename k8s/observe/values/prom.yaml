@@ -2,7 +2,7 @@
 #scrape vernemq container metrics at http:8888/metrics
 extraScrapeConfigs: |
   - job_name: 'vernemq-metrics'  
-    scrape_interval: 10s
+    scrape_interval: 5s
     metrics_path: /metrics
     kubernetes_sd_configs:
       - role: pod

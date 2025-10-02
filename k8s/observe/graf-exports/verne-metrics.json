@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -30,123 +30,51 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "green",
+            "mode": "fixed"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
               },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 0,
-        "y": 0
-      },
-      "id": 4,
-      "options": {
-        "minVizHeight": 129,
-        "minVizWidth": 75,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
+              "type": "special"
+            }
           ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "expr": "sum(vernemq_bytes_received{job=\"vernemq-metrics\"})",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Bytes Received (total)",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "light-purple",
-                "value": 0
-              },
-              {
                 "color": "green",
-                "value": 100
-              },
-              {
-                "color": "super-light-yellow",
-                "value": 500
-              },
-              {
-                "color": "yellow",
-                "value": 1000
-              },
-              {
-                "color": "orange",
-                "value": 2000
-              },
-              {
-                "color": "super-light-red",
-                "value": 3000
+                "value": 0
               },
               {
                 "color": "red",
-                "value": 5000
+                "value": 80
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 10,
-        "x": 7,
+        "h": 3,
+        "w": 4,
+        "x": 0,
         "y": 0
       },
-      "id": 7,
+      "id": 18,
+      "maxDataPoints": 100,
       "options": {
-        "minVizHeight": 129,
-        "minVizWidth": 75,
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -154,9 +82,10 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "12.2.0",
       "targets": [
@@ -165,16 +94,391 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
-          "expr": "sum(vernemq_active_mqtt_connections{job=\"vernemq-metrics\", pod=~\"vernemq-broker-.*\"})",
-          "instant": false,
-          "legendFormat": "__auto",
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "count(vernemq_system_runtime)",
+          "format": "table",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "step": 2
         }
       ],
-      "title": "Total Concurrent Connections",
-      "type": "gauge"
+      "title": "Pods Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 13,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(vernemq_total_active_connections{pod=~\"vernemq-broker-.*\"})",
+          "format": "table",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "range": true,
+          "refId": "A",
+          "step": 2
+        }
+      ],
+      "title": "Connected Clients",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Highest VerneMQ Cluster Broker Uptime",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 8,
+        "y": 0
+      },
+      "id": 11,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "max(vernemq_system_wallclock{pod=~\"vernemq-broker-.*\"})",
+          "format": "table",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "metric": "system_wallclock",
+          "range": true,
+          "refId": "A",
+          "step": 4
+        }
+      ],
+      "title": "Uptime",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Number of PUBLISH packets received by MQTT queue processes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgba(39, 169, 34, 0.97)",
+                "value": 0
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 10000
+              },
+              {
+                "color": "rgba(245, 54, 54, 0.9)",
+                "value": 20000
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "locale"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 13,
+        "y": 0
+      },
+      "id": 12,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(vernemq_queue_message_in{pod=~\"vernemq-broker-.*\"})",
+          "format": "table",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "Messages",
+          "metric": "queue_processes",
+          "range": true,
+          "refId": "A",
+          "step": 4
+        }
+      ],
+      "title": "Queue Messages In",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "VerneMQ Broker average Erlang Scheduler utilization.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 9,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "(sum(vernemq_system_utilization{pod=~\"vernemq-broker-.*\"}) / count(vernemq_system_utilization{pod=~\"vernemq-broker-.*\"}))",
+          "format": "table",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "metric": "system_utilization",
+          "range": true,
+          "refId": "A",
+          "step": 4
+        }
+      ],
+      "title": "System Utilization",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -199,21 +503,24 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 17,
-        "y": 0
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 3
       },
       "id": 6,
       "options": {
-        "minVizHeight": 129,
-        "minVizWidth": 75,
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -221,9 +528,9 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "12.2.0",
       "targets": [
@@ -232,7 +539,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "expr": "sum(vernemq_bytes_sent{job=\"vernemq-metrics\"})",
           "instant": false,
           "legendFormat": "__auto",
@@ -240,8 +547,93 @@
           "refId": "A"
         }
       ],
-      "title": "Bytes Sent (total)",
-      "type": "gauge"
+      "title": "Dtaa Sent (total)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 3
+      },
+      "id": 15,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(vernemq_mqtt_publish_sent{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "intervalFactor": 2,
+          "metric": "mqtt_publish_sent",
+          "range": true,
+          "refId": "A",
+          "step": 4
+        }
+      ],
+      "title": "MQTT Send/Sec",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -262,8 +654,488 @@
                 "value": 0
               },
               {
+                "color": "super-light-blue",
+                "value": 100000
+              },
+              {
+                "color": "blue",
+                "value": 500000
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 1000000
+              },
+              {
+                "color": "orange",
+                "value": 5000000
+              },
+              {
+                "color": "light-red",
+                "value": 10000000
+              },
+              {
+                "color": "dark-red",
+                "value": 50000000
+              }
+            ]
+          },
+          "unit": "sishort"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 8,
+        "y": 3
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(\n  sum by(node) (rate(vernemq_mqtt_publish_sent{job=\"vernemq-metrics\"}[1h]))\n) ",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Published Messages",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(\n  sum by(node) (vernemq_mqtt_publish_received{job=\"vernemq-metrics\"})\n) ",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Received Messages",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Pub/Sub Messages Count ",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Total bytes into cluster",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 3
+      },
+      "id": 10,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(vernemq_system_io_in{pod=~\"vernemq-broker-.*\"})",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "Lifetime",
+          "range": true,
+          "refId": "A",
+          "step": 2
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(vernemq_system_io_in{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Current",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Data Ingress",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-yellow",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(vernemq_bytes_received{job=\"vernemq-metrics\"})",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "MB Received (total)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 10000
+              },
+              {
+                "color": "rgba(245, 54, 54, 0.9)",
+                "value": 200000
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 7
+      },
+      "id": 14,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(vernemq_mqtt_publish_received{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "format": "table",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "metric": "mqtt_publish_sent",
+          "range": true,
+          "refId": "A",
+          "step": 4
+        }
+      ],
+      "title": "MQTT Receive/Sec",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Total bytes out of cluster",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
                 "color": "red",
                 "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 7
+      },
+      "id": 16,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum(vernemq_system_io_out{pod=~\"vernemq-broker-.*\"})",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "Lifetime",
+          "range": true,
+          "refId": "A",
+          "step": 2
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(vernemq_system_io_out{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Current",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Data Egress",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "light-blue",
+                "value": 100
+              },
+              {
+                "color": "blue",
+                "value": 200
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 1000
+              },
+              {
+                "color": "#EAB839",
+                "value": 5000
+              },
+              {
+                "color": "orange",
+                "value": 10000
+              },
+              {
+                "color": "orange",
+                "value": 50000
+              },
+              {
+                "color": "light-red",
+                "value": 100000
+              },
+              {
+                "color": "dark-red",
+                "value": 1000000
               }
             ]
           }
@@ -271,25 +1143,152 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 9,
+        "h": 8,
+        "w": 11,
         "x": 0,
-        "y": 7
+        "y": 11
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(vernemq_socket_open{pod=~\"vernemq-broker-.*\"})\n-\nsum(vernemq_socket_close{pod=~\"vernemq-broker-.*\"})",
+          "legendFormat": "socket current open",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(vernemq_socket_open{pod=~\"vernemq-broker-.*\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "socket lifetime opens",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(vernemq_socket_close{pod=~\"vernemq-broker-.*\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "socket lifetime closed",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(vernemq_socket_error{pod=~\"vernemq-broker-.*\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "socket lifetime errors",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "Socket Status",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "super-light-blue",
+                "value": 50
+              },
+              {
+                "color": "blue",
+                "value": 100
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 500
+              },
+              {
+                "color": "#EAB839",
+                "value": 1000
+              },
+              {
+                "color": "orange",
+                "value": 5000
+              },
+              {
+                "color": "light-red",
+                "value": 10000
+              },
+              {
+                "color": "dark-red",
+                "value": 50000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 13,
+        "x": 11,
+        "y": 11
       },
       "id": 2,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "maxVizHeight": 300,
-        "minVizHeight": 16,
+        "minVizHeight": 19,
         "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "auto",
+        "namePlacement": "top",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -299,6 +1298,10 @@
         },
         "showUnfilled": true,
         "sizing": "auto",
+        "text": {
+          "titleSize": 20,
+          "valueSize": 30
+        },
         "valueMode": "color"
       },
       "pluginVersion": "12.2.0",
@@ -309,9 +1312,12 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
+          "exemplar": false,
           "expr": "vernemq_active_mqtt_connections{job=\"vernemq-metrics\", pod=~\"vernemq-broker-.*\"}",
+          "format": "time_series",
           "instant": false,
-          "legendFormat": "__auto",
+          "interval": "",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -327,7 +1333,42 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "sockets activity / per sec",
+            "axisPlacement": "right",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -338,35 +1379,47 @@
                 "value": 0
               },
               {
+                "color": "super-light-yellow",
+                "value": 100
+              },
+              {
+                "color": "#EAB839",
+                "value": 500
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 10000
               }
             ]
-          }
+          },
+          "unit": "ops"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 15,
-        "x": 9,
-        "y": 7
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 19
       },
-      "id": 5,
+      "id": 19,
       "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": false,
-        "sizing": "auto"
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.2.0",
       "targets": [
@@ -376,7 +1429,130 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum by(node) (rate(vernemq_mqtt_publish_received{job=\"vernemq-metrics\"}[1h])) + (sum by(node) (rate(vernemq_mqtt_publish_sent{job=\"vernemq-metrics\"}[1h])))",
+          "exemplar": false,
+          "expr": "sum(rate(vernemq_socket_open{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "Connect (Socket Opens)",
+          "metric": "",
+          "range": true,
+          "refId": "A",
+          "step": 2
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(vernemq_socket_close{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "Disconnect (Socket Close)",
+          "range": true,
+          "refId": "B",
+          "step": 2
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(vernemq_socket_error{pod=~\"vernemq-broker-.*\"}[$__rate_interval]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Socket Errors",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Connect/Disconnect Rate (per second)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "super-light-blue",
+                "value": 1000
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 10000
+              },
+              {
+                "color": "orange",
+                "value": 100000
+              },
+              {
+                "color": "red",
+                "value": 1000000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 5,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum by(node) (vernemq_mqtt_publish_received{job=\"vernemq-metrics\"}) + (sum by(node) (rate(vernemq_mqtt_publish_sent{job=\"vernemq-metrics\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -384,8 +1560,8 @@
           "refId": "A"
         }
       ],
-      "title": "Published Messages rate",
-      "type": "gauge"
+      "title": "Published Messages rate (per pod)",
+      "type": "state-timeline"
     },
     {
       "datasource": {
@@ -407,22 +1583,35 @@
               },
               {
                 "color": "light-blue",
-                "value": 80
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "dark-orange",
+                "value": 100
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 500
               }
             ]
-          }
+          },
+          "unit": "decmbytes"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 11,
         "x": 0,
-        "y": 16
+        "y": 33
       },
       "id": 1,
       "options": {
-        "displayMode": "lcd",
+        "displayMode": "basic",
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -452,15 +1641,15 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
-          "expr": "vernemq_bytes_received{job=\"vernemq-metrics\", pod!~\"vernemq-broker-.*\"}",
+          "editorMode": "code",
+          "expr": "vernemq_bytes_received{job=\"vernemq-metrics\", pod=~\"vernemq-broker-.*\"}/(1024*1024)",
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Bytes Received per pods",
+      "title": "MBs Received per pods",
       "type": "bargauge"
     },
     {
@@ -483,10 +1672,23 @@
               },
               {
                 "color": "blue",
-                "value": 80
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "dark-orange",
+                "value": 100
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 500
               }
             ]
-          }
+          },
+          "unit": "decmbytes"
         },
         "overrides": [
           {
@@ -515,22 +1717,22 @@
         ]
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 13,
         "x": 11,
-        "y": 16
+        "y": 33
       },
       "id": 3,
       "options": {
-        "displayMode": "lcd",
+        "displayMode": "basic",
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
-        "maxVizHeight": 300,
-        "minVizHeight": 48,
+        "maxVizHeight": 81,
+        "minVizHeight": 65,
         "minVizWidth": 8,
         "namePlacement": "top",
         "orientation": "horizontal",
@@ -542,7 +1744,10 @@
           "values": false
         },
         "showUnfilled": true,
-        "sizing": "manual",
+        "sizing": "auto",
+        "text": {
+          "titleSize": 16
+        },
         "valueMode": "text"
       },
       "pluginVersion": "12.2.0",
@@ -553,9 +1758,9 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "vernemq_bytes_sent{job=\"vernemq-metrics\", pod=~\"vernemq-broker-.*\"}",
+          "expr": "vernemq_bytes_sent{job=\"vernemq-metrics\", pod=~\"vernemq-broker-.*\"}/(1024*1024)",
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A"
         }
@@ -581,6 +1786,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "VerneMQTT Broker Metrics",
-  "uid": "adsk8gzx4",
-  "version": 1
+  "uid": "adsk8gzx434dc",
+  "version": 8
 }
