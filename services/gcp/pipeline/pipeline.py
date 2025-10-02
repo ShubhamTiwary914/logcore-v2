@@ -21,7 +21,8 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", required=True)
     parser.add_argument("--topic", required=True)
-    parser.add_argument("--host", required=True)
+    parser.add_argument("--pubsubhost", required=True)
+    parser.add_argument("--bigtablehost", required=True)
     return parser.parse_args()
 
 def getNowTime():
@@ -30,9 +31,16 @@ def getNowTime():
 cliargs : argparse.Namespace = get_args()
 project_id : str= cliargs.project
 topic : str= cliargs.topic
-host : str = cliargs.host
-os.environ["PUBSUB_EMULATOR_HOST"] = host
-os.environ["BIGTABLE_EMULATOR_HOST"] = "localhost:8086"
+pubsubhost : str = cliargs.pubsubhost
+bigtablehost : str = cliargs.bigtablehost
+
+args_dict = vars(cliargs)  
+args_json = json.dumps(args_dict)
+print(args_json)
+print(f"CLI args: \n{args_json}", file=sys.__stdout__,flush=True)
+
+os.environ["PUBSUB_EMULATOR_HOST"] = pubsubhost
+os.environ["BIGTABLE_EMULATOR_HOST"] =  bigtablehost
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/dev/null"
 instance_id = "local"
@@ -70,6 +78,7 @@ class WriteTableFn(beam.DoFn):
         )
 
 def main():
+    print(f"starting the apache beam pipeline... (stream pubsub<->bigtable)", file=sys.__stdout__,flush=True)
     try:
         with beam.Pipeline(options=options) as p:
             (

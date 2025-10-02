@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -715,7 +715,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(\n  sum by(node) (rate(vernemq_mqtt_publish_sent{job=\"vernemq-metrics\"}[1h]))\n) ",
+          "expr": "sum(\n  sum by(node) (vernemq_mqtt_publish_sent{job=\"vernemq-metrics\"})\n) ",
           "hide": false,
           "instant": false,
           "legendFormat": "Published Messages",
@@ -1143,7 +1143,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 11,
         "w": 11,
         "x": 0,
         "y": 11
@@ -1270,7 +1270,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 11,
         "w": 13,
         "x": 11,
         "y": 11
@@ -1401,10 +1401,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 22
       },
       "id": 19,
       "options": {
@@ -1522,10 +1522,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 32
       },
       "id": 5,
       "options": {
@@ -1607,7 +1607,7 @@
         "h": 11,
         "w": 11,
         "x": 0,
-        "y": 33
+        "y": 40
       },
       "id": 1,
       "options": {
@@ -1720,7 +1720,7 @@
         "h": 11,
         "w": 13,
         "x": 11,
-        "y": 33
+        "y": 40
       },
       "id": 3,
       "options": {
@@ -1787,5 +1787,5 @@
   "timezone": "browser",
   "title": "VerneMQTT Broker Metrics",
   "uid": "adsk8gzx434dc",
-  "version": 8
+  "version": 1
 }
