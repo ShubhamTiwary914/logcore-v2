@@ -1,6 +1,10 @@
 version: '3'
 
-dotenv: ['.env']
+env:
+  MONITOR_NAMESPACE: observe
+  GCP_PROJECT: gcplocal-emulator
+  GCP_LOCAL_BASE_URL: http://localhost:8085/v1
+
 
 tasks:
   _run-local:
@@ -122,11 +126,10 @@ tasks:
       - docker compose down
 
   gcp-local-init:
-    dir: ./services/gcp
     desc: initialize gcp local pubsub(topics) & bigtable(relations)
     cmds:
-      - bash -c ""./pubsub/create-topic.sh
-      - zsh -i -c "conda activate logcore && python ./bigtable/init.py"
+      - bash -c "./scripts/pubsub-create-topic.sh"
+      - zsh -i -c "conda activate logcore && python ./services/gcp/bigtable/init.py"
   
   gcp-local-bigtable-get-relations-list:
     dir: ./services/gcp/bigtable
