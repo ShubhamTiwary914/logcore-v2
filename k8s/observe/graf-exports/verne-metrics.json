@@ -503,7 +503,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -539,14 +540,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(vernemq_bytes_sent{job=\"vernemq-metrics\"})/(1024*1024)",
+          "expr": "sum(vernemq_bytes_sent{job=\"vernemq-metrics\"})",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "MB Sent (total)",
+      "title": "Dtaa Sent (total)",
       "type": "stat"
     },
     {
@@ -843,7 +844,8 @@
                 "value": 0
               }
             ]
-          }
+          },
+          "unit": "decbytes"
         },
         "overrides": []
       },
@@ -879,7 +881,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(vernemq_bytes_received{job=\"vernemq-metrics\"})/(1024*1024)",
+          "expr": "sum(vernemq_bytes_received{job=\"vernemq-metrics\"})",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1783,7 +1785,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "VerneMQTT Broker Metrics - v2",
+  "title": "VerneMQTT Broker Metrics",
   "uid": "adsk8gzx434dc",
-  "version": 4
+  "version": 8
 }
