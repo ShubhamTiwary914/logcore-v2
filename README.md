@@ -27,7 +27,8 @@ Earlier version was [logcore-v1](https://github.com/ShubhamTiwary914/logcore), w
 ---
 
 # Architecture
-<img width="1388" height="529" alt="screenshot_2025-10-01-172856" src="https://github.com/user-attachments/assets/63a30adf-8d4f-4acf-99bb-951be834d306" />
+<img width="1425" height="570" alt="screenshot_2025-10-02-210953" src="https://github.com/user-attachments/assets/fb5a6ad9-f40e-42cd-950e-a96773a4a1a4" />
+
 
 <br />
 
@@ -40,7 +41,6 @@ Earlier version was [logcore-v1](https://github.com/ShubhamTiwary914/logcore), w
 - Dataflow: [streaming ETL pipeline](https://hazelcast.com/foundations/event-driven-architecture/streaming-etl/) to transform & push data to data storages
 - BigTable:  holds the full data, really scalable, no schema needed
 - FireStore: device shadows (active devices list)
-- NextJS Dashboard:  add new type, user side views
 
 
 ### Difference between the local version and on GCP premise:
@@ -147,9 +147,9 @@ Logs for the example here:
 
 # Things to add:
 - [ ] Firestore support for device shadows
-- [ ] NextJS dashboard to add additional schemas and user side data trace
 - [ ] Migrating the cluster from K3s and GCP emulators to GCP
 - [ ] Benchmarking comparison between local nodes & GKE after final deployments
+
 
 
 
