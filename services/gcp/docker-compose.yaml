@@ -17,3 +17,15 @@ services:
       "
     environment:
       - PROJECT_ID=gcplocal-emulator
+
+  # pipeline:
+  #   build:
+  #     context: ./pipeline
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - gcp-emulators
+  #   environment:
+  #     project: "gcplocal-emulator"
+  #     topic: "source"
+  #     pubsubhost: "gcp-emulators:8085"
+  #     bigtablehost: "gcp-emulators:8086"
