@@ -19,14 +19,13 @@ spec:
         app: broker 
     spec:
       serviceAccountName: vernemq 
-
-{{- if eq .Values.env "dev" }}
       #shared emptyDir vol
       volumes:
         - name: envs
           emptyDir: {}
-          
-      #allow access to node (access gcp emulator - not for prod!)
+
+#node address(for access gcp emulator - not for prod!)
+{{- if eq .Values.env "dev" }}          
       initContainers:
         - name: init-host-ip
           image: busybox
@@ -38,6 +37,20 @@ spec:
             - name: envs
               mountPath: /envs
 {{- end }}
+
+{{- if eq .Values.env "prod" }}
+#set mode = prod (for prod)
+      initContainers: 
+        - name: init-mode-setter
+          image: busybox
+          command:
+          - sh
+          - c
+          - echo "prod" > {{ .Values.listenerConfig.modePath }}
+        volumeMounts:
+          - name: envs
+            mountPath: /envs
+{{-end }}
 
       containers:
         - name:  vernemq
@@ -52,7 +65,7 @@ spec:
               name: verne-conf
 
         - name: listener
-          image: sardinesszsz/verne-listener:latest 
+          image: {{ .Values.image }} 
           envFrom:
           - configMapRef: 
               name: verne-conf
@@ -75,9 +88,6 @@ spec:
                 - 'grep -q "SUCCESS" $MQTT_CONNECT_SUCCESS_PATH && grep -q "SUCCESS" $PUBSUB_CONNECT_SUCCESS_PATH' 
             initialDelaySeconds: 10
             periodSeconds: 2
-
-{{- if eq .Values.env "dev" }}
           volumeMounts:
           - name: envs
             mountPath: /envs
-{{- end }}

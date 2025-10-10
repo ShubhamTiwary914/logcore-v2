@@ -4,6 +4,7 @@ resource "google_container_cluster" "default" {
     enable_autopilot = true
     network = google_compute_network.logcore-net.id
     subnetwork = google_compute_subnetwork.logcore-lowa-subnet.id
+    project = var.project_id
 
     cluster_autoscaling {
         auto_provisioning_defaults {

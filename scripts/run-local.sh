@@ -76,15 +76,16 @@ else
 fi
 
 #verne setup
+VERNE_DIR="../k8s/dev/verne"
 log_info "Installing Verne chart..."
 if helm list -n verne | grep -q "verne"; then
     log_skip "Verne chart already installed"
 else
-    helm install verne verne/verne -n verne
+    helm install verne verne/verne -n verne -f "$VERNE_DIR/dev-values.yaml"
 fi
 
 #setup observability stack
-OBSERVE_DIR="../k8s/observe"
+OBSERVE_DIR="../k8s/dev/observe"
 log_info "Setting up observability stack..."
 
 #loki

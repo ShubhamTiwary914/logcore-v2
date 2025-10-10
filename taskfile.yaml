@@ -1,12 +1,14 @@
 version: '3'
 
+dotenv: ['.tf.env']
+
+
 env:
   MONITOR_NAMESPACE: observe
   GCP_PROJECT: gcplocal-emulator
   GCP_LOCAL_BASE_URL: http://localhost:8085/v1
   DEV_PATH: ./k8s/dev
   PROD_PATH: ./k8s/prod
-  
 
 tasks:
   # / ======== \
@@ -53,10 +55,11 @@ tasks:
     cmds:
       - helm upgrade prometheus prometheus-community/prometheus -n $MONITOR_NAMESPACE -f ./values/prom.yaml
   
-  verne-helm-pack-install:
+  verne-helm-setup-local:
+    dir: $DEV_PATH/verne
     desc: install verne helm package
     cmds:
-      - helm install verne verne/verne -n verne
+      - helm install verne verne/verne -n verne -f ./dev-values.yaml
 
   verne-get-ip:
     desc: get verne broker load balancer IP to access 
@@ -169,3 +172,32 @@ tasks:
   # / ======== \
   #   region PROD 
   # \ ======== /
+  tf-init:
+    dir: ./terraform
+    cmds: 
+      - terraform init
+      
+  tf-plan:
+    dir: ./terraform
+    cmds:
+      - terraform plan
+   
+  tf-apply:
+    dir: ./terraform
+    cmds:
+      - terraform apply 
+  
+  tf-apply-debug:
+    dir: ./terraform
+    cmds:
+      - TF_LOG=DEBUG TF_LOG_PATH=./tf-debug.log terraform apply -auto-approve
+
+  tf-destroy-single:
+    dir: ./terraform
+    cmds:
+      - terraform destroy -target={{.CLI_ARGS}}  
+   
+  tf-list-res:
+    dir: ./terraform
+    cmds:
+      - terraform state list

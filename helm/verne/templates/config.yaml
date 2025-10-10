@@ -15,3 +15,5 @@ data:
   MQTT_TOPIC: {{ .Values.listenerConfig.mqttTopic | quote }}
   MQTT_BROKER_ADDRESS: {{ .Values.listenerConfig.brokerAddress | quote }}
   PUBSUB_HOST: {{ .Values.listenerConfig.pubsubHost | quote }}
+  MODE_PATH: {{ .Values.listenerConfig.modePath | quote }}
+  PROJECT_ID: {{ .Values.listenerConfig.projectID | quote }}
