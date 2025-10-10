@@ -17,18 +17,20 @@ var (
 	//readiness probe file path (container healthcheck)
 	LISTENER_HEALTHFILE_PATH = os.Getenv("MQTT_CONNECT_SUCCESS_PATH")
 	PUB_HEALTHFILE_PATH      = os.Getenv("PUBSUB_CONNECT_SUCCESS_PATH")
+	MODE_PATH                = os.Getenv("MODE_PATH")
 )
 
 var (
 	//target= verne container in same pod (hence TCP at localhost:1883)
 	Broker      string = os.Getenv("MQTT_BROKER_ADDRESS")
 	Port        int    = 1883
-	projectID   string = "gcplocal-emulator"
+	projectID   string = os.Getenv("PROJECT_ID")
 	pubsubTopic string = "source"
 
 	MqttTopicPath string = os.Getenv("MQTT_TOPIC")
 	pubsubPort    string = "8085"
 	pubsubHost    string = os.Getenv("PUBSUB_HOST")
+	mode          string = "dev"
 )
 
 var (
@@ -60,6 +62,7 @@ func localConfigs() {
 	//read host_ip (for k3s local) -> node where gcp emulator runs
 	data, err := os.ReadFile("/envs/host_ip")
 	if err != nil {
+		utils.Log(utils.LOG_ERROR, "error loading host_ip from /envs/host_ip")
 		panic(err)
 	}
 	hostIP := string(utils.TrimSpace(data))
@@ -72,8 +75,19 @@ func localConfigs() {
 	utils.Log(utils.LOG_WARN, "currently running localhost pubsub via gcp-emulator, change in production to real gcp!")
 }
 
+func configs() {
+	modepath, err := os.ReadFile(MODE_PATH)
+	if err != nil {
+		utils.Log(utils.LOG_ERROR, utils.Sprintf("error finding what mode to set at %s"))
+	}
+	mode = string(utils.TrimSpace(modepath))
+	if mode == "dev" {
+		localConfigs()
+	}
+}
+
 func main() {
-	localConfigs()
+	configs()
 
 	//connect to pubsub (+channel for publishing)
 	pubctx, pubclient = confPubSub(projectID)
@@ -151,7 +165,11 @@ func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 	if err != nil {
 		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to create pubsub client: %v", err))
 	}
-	utils.Log(utils.LOG_DEBUG, utils.Sprintf("connected to pubsub host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
+	if MODE_PATH == "dev" {
+		utils.Log(utils.LOG_DEBUG, utils.Sprintf("connected to pubsub host: %s", os.Getenv("PUBSUB_EMULATOR_HOST")))
+	} else {
+		utils.Log(utils.LOG_DEBUG, "connected to pubsub host")
+	}
 	logSuccess(PUB_HEALTHFILE_PATH)
 	return ctx, client
 }

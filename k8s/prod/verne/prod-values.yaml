@@ -1,0 +1,16 @@
+replicaCount: 3
+env: prod 
+namespace: verne
+image: sardinesszsz/verne-listener:latest 
+
+verneConfig:
+  acceptEula: "yes"
+  allowAnonymous: "on"
+listenerConfig:
+  mqttPort: "1883"
+  mqttSuccessPath: "/tmp/listener.status"
+  pubsubSuccessPath: "/tmp/pub.status"
+  mqttTopic: "mqtt-source"
+  brokerAddress: "localhost" #same pod as broker 
+  modePath: "/envs/mode"
+  projectID: "quick-sonar-469406-j1"

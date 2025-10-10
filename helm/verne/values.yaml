@@ -1,6 +1,7 @@
-replicaCount: 5
+replicaCount: 2
 env: dev 
 namespace: verne
+image: sardinesszsz/verne-listener:latest 
 
 verneConfig:
   acceptEula: "yes"
@@ -11,5 +12,7 @@ listenerConfig:
   mqttSuccessPath: "/tmp/listener.status"
   pubsubSuccessPath: "/tmp/pub.status"
   mqttTopic: "mqtt-source"
-  brokerAddress: "localhost"
+  brokerAddress: "localhost" #same pod as broker 
   pubsubHost: "gcp-emulators:8085"
+  modePath: "/envs/mode"
+  projectID: "gcplocal-emulator"
