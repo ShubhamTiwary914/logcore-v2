@@ -38,7 +38,6 @@ spec:
             - name: envs
               mountPath: /envs
 {{- end }}
-
       containers:
         - name:  vernemq
           image: vernemq/vernemq
