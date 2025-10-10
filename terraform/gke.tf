@@ -5,6 +5,7 @@ resource "google_container_cluster" "default" {
     network = google_compute_network.logcore-net.id
     subnetwork = google_compute_subnetwork.logcore-lowa-subnet.id
     project = var.project_id
+    deletion_protection = false
 
     cluster_autoscaling {
         auto_provisioning_defaults {

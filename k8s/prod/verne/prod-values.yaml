@@ -14,3 +14,19 @@ listenerConfig:
   brokerAddress: "localhost" #same pod as broker 
   modePath: "/envs/mode"
   projectID: "quick-sonar-469406-j1"
+
+resourceOptions:
+  verne:
+    requests:
+      memory: "512Mi"
+      cpu: "2"
+    limits:
+      memory: "1.5Gi"
+      cpu: "4"
+  listener:
+    requests:
+      memory: "128Mi"
+      cpu: "1"
+    limits:
+      memory: "512Mi"
+      cpu: "2"

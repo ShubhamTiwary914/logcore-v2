@@ -32,6 +32,26 @@ tasks:
       - kubectl create ns observe
       - kubectl create ns verne
       
+  helm-update-repos:
+    desc: pull & update all changed helm repo releases
+    cmds:
+      - helm repo add verne https://raw.githubusercontent.com/ShubhamTiwary914/logcore-v2/charts/ 2>/dev/null || echo "Verne repo already added"
+      - helm repo add grafana https://grafana.github.io/helm-charts 2>/dev/null || echo "Grafana repo already added"
+      - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 2>/dev/null || echo "Prometheus repo already added"
+      - helm repo update
+      
+  helm-view-dev-manifest:
+    desc: view how rendered verne manifests will be after applying dev values
+    cmds: 
+      - mkdir -p logs
+      - helm template verne ./helm/verne  --values ./k8s/dev/verne/dev-values.yaml --debug > ./logs/dev-verne-manifest.yaml
+      
+  helm-view-prod-manifest:
+    desc: view how rendered verne manifests will be after applying prod values
+    cmds: 
+      - mkdir -p logs
+      - helm template verne ./helm/verne  --values ./k8s/prod/verne/prod-values.yaml --debug > ./logs/prod-verne-manifest.yaml
+
   observe-grafana-access-local:
     desc: access the grafana web ui (get address & details)
     cmds: 
@@ -56,9 +76,8 @@ tasks:
       - helm upgrade prometheus prometheus-community/prometheus -n $MONITOR_NAMESPACE -f ./values/prom.yaml
   
   verne-helm-setup-local:
-    dir: $DEV_PATH/verne
     desc: install verne helm package
-    cmds:
+    cmds: 
       - helm install verne verne/verne -n verne -f ./dev-values.yaml
 
   verne-get-ip:
@@ -191,7 +210,12 @@ tasks:
     dir: ./terraform
     cmds:
       - TF_LOG=DEBUG TF_LOG_PATH=./tf-debug.log terraform apply -auto-approve
-
+  
+  tf-destroy-all:
+    dir: ./terraform
+    cmds:
+      - terraform destroy 
+      
   tf-destroy-single:
     dir: ./terraform
     cmds:

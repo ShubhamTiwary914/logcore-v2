@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
 #vernMQTT pods deployment config with sidecar for listener
 #listener -> a golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
 
@@ -24,7 +25,7 @@ spec:
         - name: envs
           emptyDir: {}
 
-#node address(for access gcp emulator - not for prod!)
+    #node address(for access gcp emulator - not for prod!)
 {{- if eq .Values.env "dev" }}          
       initContainers:
         - name: init-host-ip
@@ -39,7 +40,7 @@ spec:
 {{- end }}
 
 {{- if eq .Values.env "prod" }}
-#set mode = prod (for prod)
+    #set mode = prod (for prod)
       initContainers: 
         - name: init-mode-setter
           image: busybox
@@ -50,11 +51,24 @@ spec:
         volumeMounts:
           - name: envs
             mountPath: /envs
-{{-end }}
+{{- end }}
 
       containers:
         - name:  vernemq
           image: vernemq/vernemq
+          resources:
+          {{- with .Values.resourceOptions.verne }}
+            requests:
+              {{- with .requests }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+            limits:
+              {{- with .limits }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+          {{- end }}
           ports:
             - name: tcpline
               containerPort: 1883 
@@ -66,6 +80,19 @@ spec:
 
         - name: listener
           image: {{ .Values.image }} 
+          resources:
+          {{- with .Values.resourceOptions.listener }}
+            requests:
+              {{- with .requests }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+            limits:
+              {{- with .limits }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+          {{- end }}
           envFrom:
           - configMapRef: 
               name: verne-conf
