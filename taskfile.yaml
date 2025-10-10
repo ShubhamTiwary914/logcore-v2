@@ -4,9 +4,14 @@ env:
   MONITOR_NAMESPACE: observe
   GCP_PROJECT: gcplocal-emulator
   GCP_LOCAL_BASE_URL: http://localhost:8085/v1
-
+  DEV_PATH: ./k8s/dev
+  PROD_PATH: ./k8s/prod
+  
 
 tasks:
+  # / ======== \
+  #   region DEV  
+  # \ ======== /
   _run-local:
     dir: ./scripts
     desc: setup & run everything locally!
@@ -19,14 +24,13 @@ tasks:
     cmds:
       -  bash -c "./stop-local.sh"
 
-
   ns-create:
     desc: create all required namespaces
     cmds:
       - kubectl create ns observe
       - kubectl create ns verne
       
-  observe-grafana-access:
+  observe-grafana-access-local:
     desc: access the grafana web ui (get address & details)
     cmds: 
       - |
@@ -37,14 +41,14 @@ tasks:
         echo "Username: admin"
         echo "Password: ${GRAFANA_PASS}"
  
-  observe-loki-update:
-    dir: ./k8s/observe
+  observe-loki-update-local:
+    dir: $DEV_PATH/observe
     desc: upgrade the loki helm pods on observe ns
     cmds:
       - helm upgrade loki grafana/loki -n $MONITOR_NAMESPACE -f ./values/loki.yaml
 
-  observe-prom-update:
-    dir: ./k8s/observe
+  observe-prom-update-local:
+    dir: $DEV_PATH/observe
     desc: upgrade the prometheus pods on observe ns
     cmds:
       - helm upgrade prometheus prometheus-community/prometheus -n $MONITOR_NAMESPACE -f ./values/prom.yaml
@@ -159,3 +163,9 @@ tasks:
     desc: subsribe and listen to pubsub source(local)
     cmds: 
       - zsh -i -c "conda activate logcore && python sub.py" 
+
+  
+      
+  # / ======== \
+  #   region PROD 
+  # \ ======== /
