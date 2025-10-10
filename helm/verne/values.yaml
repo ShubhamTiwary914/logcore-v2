@@ -16,3 +16,19 @@ listenerConfig:
   pubsubHost: "gcp-emulators:8085"
   modePath: "/envs/mode"
   projectID: "gcplocal-emulator"
+
+resourceOptions:
+  verne:
+    requests:
+      memory: "512Mi"
+      cpu: "2"
+    limits:
+      memory: "1.5Gi"
+      cpu: "4"
+  listener:
+    requests:
+      memory: "128Mi"
+      cpu: "1"
+    limits:
+      memory: "512Mi"
+      cpu: "2"
