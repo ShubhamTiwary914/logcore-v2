@@ -76,3 +76,11 @@ alloy:
       loki.process "pod_logs" {
         forward_to = [loki.write.default.receiver]
       }
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "2"
+  limits:
+    memory: "1.5Gi"
+    cpu: "4"

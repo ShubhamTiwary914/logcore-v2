@@ -17,3 +17,11 @@ extraScrapeConfigs: |
         target_label: __address__
         replacement: ${1}:8888
  
+prometheus:
+  resources:
+    requests:
+      cpu: 1
+      memory: 128Mi
+    limits:
+      cpu: 1
+      memory: 512Mi 

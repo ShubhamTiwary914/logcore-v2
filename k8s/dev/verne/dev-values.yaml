@@ -14,7 +14,6 @@ listenerConfig:
   mqttTopic: "mqtt-source"
   brokerAddress: "localhost" #same pod as broker 
   pubsubHost: "gcp-emulators:8085"
-  modePath: "/envs/mode"
   projectID: "gcplocal-emulator"
 
 resourceOptions:

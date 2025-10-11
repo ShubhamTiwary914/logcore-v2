@@ -1,0 +1,170 @@
+---
+# Source: verne/templates/roles.yaml
+#roles for the pods
+#[context: verneMQ setups up clustering with other pods via k8s API, so give that access to make calls]
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vernemq
+  namespace: default
+---
+# Source: verne/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: verne-conf
+  namespace: default 
+data:
+  # verne container 
+  DOCKER_VERNEMQ_ACCEPT_EULA: "yes"
+  DOCKER_VERNEMQ_ALLOW_ANONYMOUS: "on"
+  # listener container
+  HOST_PATH: "/envs/host_ip"
+  MQTT_PORT: "1883"
+  MQTT_CONNECT_SUCCESS_PATH: "/tmp/listener.status"
+  PUBSUB_CONNECT_SUCCESS_PATH: "/tmp/pub.status"
+  MQTT_TOPIC: "mqtt-source"
+  MQTT_BROKER_ADDRESS: "localhost"
+  PUBSUB_HOST: "gcp-emulators:8085"
+  MODE_PATH: "/envs/mode"
+  PROJECT_ID: "gcplocal-emulator"
+---
+# Source: verne/templates/roles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vernemq-role
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+# Source: verne/templates/roles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vernemq-rolebinding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: vernemq
+  namespace: default
+roleRef:
+  kind: Role
+  name: vernemq-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: verne/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vernemq-broker
+  namespace: default 
+spec:
+  type: LoadBalancer
+  selector:
+    app: broker
+  ports:
+    - name: mqtt
+      port: 1883
+      targetPort: 1883
+    - name: metrics
+      port: 8888
+      targetPort: 8888
+---
+# Source: verne/templates/deployment.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+#vernMQTT pods deployment config with sidecar for listener
+#listener -> a golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vernemq-broker
+  namespace: default 
+  labels:
+    app: broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broker
+  template:
+    metadata:
+      labels:
+        app: broker 
+    spec:
+      serviceAccountName: vernemq 
+      #shared emptyDir vol
+      volumes:
+        - name: envs
+          emptyDir: {}          
+      #node address(for access gcp emulator - not for prod!)
+      initContainers:
+        - name: init-host-ip
+          image: busybox
+          command:
+          - sh
+          - -c
+          - echo "$(ip route | awk '/default/ {print $3}')" > /envs/host_ip
+          volumeMounts:
+            - name: envs
+              mountPath: /envs
+
+      containers:
+        - name:  vernemq
+          image: vernemq/vernemq
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "2"
+            limits:
+              memory: "1.5Gi"
+              cpu: "4"
+          ports:
+            - name: tcpline
+              containerPort: 1883 
+            - name: metrics
+              containerPort: 8888
+          envFrom:
+          - configMapRef:
+              name: verne-conf
+
+        - name: listener
+          image: sardinesszsz/verne-listener:latest 
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "1"
+            limits:
+              memory: "512Mi"
+              cpu: "2"
+          envFrom:
+          - configMapRef: 
+              name: verne-conf
+          #wait for verne container at :1883 to be ready
+          command:
+            - sh
+            - -c
+            - |
+              until netstat -tln | grep -q "127.0.0.1:$MQTT_PORT"; do
+                sleep 2
+              done
+              exec /app/listenerproc
+          #check log (connection established)
+          readinessProbe:
+            exec:
+              #check if connected to both verneMQTT + PubSub 
+              command:
+                - sh
+                - -c
+                - 'grep -q "SUCCESS" $MQTT_CONNECT_SUCCESS_PATH && grep -q "SUCCESS" $PUBSUB_CONNECT_SUCCESS_PATH' 
+            initialDelaySeconds: 10
+            periodSeconds: 2
+          volumeMounts:
+          - name: envs
+            mountPath: /envs

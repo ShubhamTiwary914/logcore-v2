@@ -1,0 +1,333 @@
+---
+# Source: alloy/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: alloy
+  namespace: default
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
+---
+# Source: alloy/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy
+  namespace: default
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: config
+data:
+  config.alloy: |-
+    logging {
+        level = "info"
+        format = "logfmt"
+      }
+    
+    loki.write "default" {
+      endpoint {
+        url = "http://loki-gateway/loki/api/v1/push"
+      }
+    }
+    
+      discovery.kubernetes "pod" {
+      role = "pod"
+    }
+    
+    discovery.relabel "pod_logs" {
+      targets = discovery.kubernetes.pod.targets
+    
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        action = "replace"
+        target_label = "namespace"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        action = "replace"
+        target_label = "pod"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        action = "replace"
+        target_label = "container"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        action = "replace"
+        target_label = "app"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+        action = "replace"
+        target_label = "job"
+        separator = "/"
+        replacement = "$1"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+        action = "replace"
+        target_label = "__path__"
+        separator = "/"
+        replacement = "/var/log/pods/*$1/*.log"
+      }
+    
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_id"]
+        action = "replace"
+        target_label = "container_runtime"
+        regex = "^(\\S+):\\/\\/.+$"
+        replacement = "$1"
+      }
+    }
+    
+    loki.source.kubernetes "pod_logs" {
+      targets    = discovery.relabel.pod_logs.output
+      forward_to = [loki.process.pod_logs.receiver]
+    }
+    
+    loki.process "pod_logs" {
+      forward_to = [loki.write.default.receiver]
+    }
+---
+# Source: alloy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alloy
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
+rules:
+  # Rules which allow discovery.kubernetes to function.
+  - apiGroups:
+      - ""
+      - "discovery.k8s.io"
+      - "networking.k8s.io"
+    resources:
+      - endpoints
+      - endpointslices
+      - ingresses
+      - nodes
+      - nodes/proxy
+      - nodes/metrics
+      - pods
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  # Rules which allow loki.source.kubernetes and loki.source.podlogs to work.
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "monitoring.grafana.com"
+    resources:
+      - podlogs
+    verbs:
+      - get
+      - list
+      - watch
+  # Rules which allow mimir.rules.kubernetes to work.
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - prometheusrules
+    verbs:
+      - get
+      - list
+      - watch
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+  # Rules for prometheus.kubernetes.*
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - podmonitors
+      - servicemonitors
+      - probes
+      - scrapeconfigs
+    verbs:
+      - get
+      - list
+      - watch
+  # Rules which allow eventhandler to work.
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+      - watch
+  # needed for remote.kubernetes.*
+  - apiGroups: [""]
+    resources:
+      - "configmaps"
+      - "secrets"
+    verbs:
+      - get
+      - list
+      - watch
+  # needed for otelcol.processor.k8sattributes
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+# Source: alloy/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: alloy
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alloy
+subjects:
+  - kind: ServiceAccount
+    name: alloy
+    namespace: default
+---
+# Source: alloy/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: alloy
+  namespace: default
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: networking
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+  internalTrafficPolicy: Cluster
+  ports:
+    - name: http-metrics
+      port: 12345
+      targetPort: 12345
+      protocol: "TCP"
+---
+# Source: alloy/templates/controllers/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: alloy
+  namespace: default
+  labels:
+    helm.sh/chart: alloy-1.3.0
+    app.kubernetes.io/name: alloy
+    app.kubernetes.io/instance: alloy
+    app.kubernetes.io/version: "v1.11.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+spec:
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alloy
+      app.kubernetes.io/instance: alloy
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: alloy
+      labels:
+        app.kubernetes.io/name: alloy
+        app.kubernetes.io/instance: alloy
+    spec:
+      serviceAccountName: alloy
+      containers:
+        - name: alloy
+          image: docker.io/grafana/alloy:v1.11.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --storage.path=/tmp/alloy
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --server.http.ui-path-prefix=/
+            - --stability.level=generally-available
+          env:
+            - name: ALLOY_DEPLOY_MODE
+              value: "helm"
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - containerPort: 12345
+              name: http-metrics
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 12345
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+        - name: config-reloader
+          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.81.0
+          args:
+            - --watched-dir=/etc/alloy
+            - --reload-url=http://localhost:12345/-/reload
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+          resources:
+            requests:
+              cpu: 10m
+              memory: 50Mi
+      dnsPolicy: ClusterFirst
+      volumes:
+        - name: config
+          configMap:
+            name: alloy
