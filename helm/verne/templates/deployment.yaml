@@ -25,8 +25,8 @@ spec:
         - name: envs
           emptyDir: {}
 
-    #node address(for access gcp emulator - not for prod!)
-{{- if eq .Values.env "dev" }}          
+      {{- if eq .Values.env "dev" }}          
+      #node address(for access gcp emulator - not for prod!)
       initContainers:
         - name: init-host-ip
           image: busybox
@@ -37,21 +37,21 @@ spec:
           volumeMounts:
             - name: envs
               mountPath: /envs
-{{- end }}
+      {{- end }}
 
-{{- if eq .Values.env "prod" }}
-    #set mode = prod (for prod)
+      {{- if eq .Values.env "prod" }}
+      #set mode = prod (for prod)
       initContainers: 
         - name: init-mode-setter
           image: busybox
           command:
           - sh
-          - c
+          - -c
           - echo "prod" > {{ .Values.listenerConfig.modePath }}
-        volumeMounts:
-          - name: envs
-            mountPath: /envs
-{{- end }}
+          volumeMounts:
+            - name: envs
+              mountPath: /envs
+      {{- end }}
 
       containers:
         - name:  vernemq

@@ -11,6 +11,15 @@ env:
   PROD_PATH: ./k8s/prod
 
 tasks:
+  testcmd:
+    cmds:
+      - |
+        set -- {{.CLI_ARGS}}
+        arg1=$1
+        arg2=$2
+        arg3=$3
+        echo command --flag1 "$arg1" --flag2 "$arg2" --flag3 "$arg3"
+
   # / ======== \
   #   region DEV  
   # \ ======== /
@@ -43,14 +52,24 @@ tasks:
   helm-view-dev-manifest:
     desc: view how rendered verne manifests will be after applying dev values
     cmds: 
-      - mkdir -p logs
-      - helm template verne ./helm/verne  --values ./k8s/dev/verne/dev-values.yaml --debug > ./logs/dev-verne-manifest.yaml
+      - mkdir -p templates
+      - helm template verne ./helm/verne  --values ./k8s/dev/verne/dev-values.yaml --debug > ./templates/dev-verne-manifest.yaml
       
   helm-view-prod-manifest:
     desc: view how rendered verne manifests will be after applying prod values
     cmds: 
-      - mkdir -p logs
-      - helm template verne ./helm/verne  --values ./k8s/prod/verne/prod-values.yaml --debug > ./logs/prod-verne-manifest.yaml
+      - mkdir -p templates
+      - helm template verne ./helm/verne  --values ./k8s/prod/verne/prod-values.yaml --debug > ./templates/prod-verne-manifest.yaml
+
+  helm-view-observe-dev-manifests:
+    desc: view dev observe manifests for alloy, prom, graf, loki
+    cmds:
+      - mkdir -p templates/observe
+      - helm template alloy grafana/alloy --values ./k8s/dev/observe/values/alloy.yaml --debug > ./templates/observe/alloy-dev-manifest.yaml
+      - helm template grafana grafana/grafana --values ./k8s/dev/observe/values/graf.yaml --debug > ./templates/observe/graf-dev-manifest.yaml
+      - helm template loki grafana/loki --values ./k8s/dev/observe/values/loki.yaml --debug > ./templates/observe/loki-dev-manifest.yaml
+      - helm template prom prometheus-community/prometheus --values ./k8s/dev/observe/values/prom.yaml --debug > ./templates/observe/prom-dev-manifest.yaml
+      
 
   observe-grafana-access-local:
     desc: access the grafana web ui (get address & details)
