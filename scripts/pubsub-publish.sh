@@ -1,8 +1,8 @@
 #!/bin/bash
-
-BASE_URL="http://localhost:8085/v1"
-PROJECT="gcplocal-emulator"
-TOPIC="source"
+BASE_URL="https://pubsub.googleapis.com/v1"
+TOKEN=$(gcloud auth print-access-token)
+PROJECT="quick-sonar-469406-j1"
+TOPIC="mqtt-source"
 RELATION="$2"
 
 if [[ -z "$RELATION" ]]; then
@@ -10,7 +10,7 @@ if [[ -z "$RELATION" ]]; then
   exit 1
 fi
 
-SCHEMA_JSON=$(cat ../schemas.json)
+SCHEMA_JSON=$(cat ./schemas.json)
 
 # check if relation exists
 if ! echo "$SCHEMA_JSON" | jq -e --arg rel "$RELATION" '.[$rel] != null' >/dev/null; then
@@ -45,12 +45,14 @@ for i in $(seq 1 100); do
     esac
     MSG+=\"${NAME}\":${VALUE},
   done
+  MSG+=\"relation\":\"${RELATION}\",
   MSG="${MSG%,}}"
   echo "Published message for relation - $RELATION"
   echo $MSG
   echo ""
   ENCODED_MSG=$(echo -n "$MSG" | base64 | tr -d '\n')
   curl -s -X POST "$BASE_URL/projects/$PROJECT/topics/$TOPIC:publish" \
+    -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
     -d "{
           \"messages\": [

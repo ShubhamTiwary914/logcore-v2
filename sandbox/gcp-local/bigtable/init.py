@@ -12,3 +12,6 @@ table1.create(column_families={"cf1": None})
 
 table2 = instance.table("machine_metrics")
 table2.create(column_families={"cf1": None})
+
+table2 = instance.table("iotsink")
+table2.create(column_families={"cf1": None})

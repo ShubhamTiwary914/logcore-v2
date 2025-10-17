@@ -21,7 +21,6 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project", required=True)
     parser.add_argument("--topic", required=True)
-    parser.add_argument("--host", required=True)
     return parser.parse_args()
 
 def getNowTime():
@@ -30,8 +29,7 @@ def getNowTime():
 cliargs : argparse.Namespace = get_args()
 project_id : str= cliargs.project
 topic : str= cliargs.topic
-host : str = cliargs.host
-os.environ["PUBSUB_EMULATOR_HOST"] = host
+os.environ["PUBSUB_EMULATOR_HOST"] = "localhost:8085" 
 os.environ["BIGTABLE_EMULATOR_HOST"] = "localhost:8086"
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/dev/null"
@@ -41,9 +39,25 @@ print(f"CLI_ARGS: \n{yaml.dump(vars(cliargs))}")
 startTime = getNowTime()
 print(f"Started at: {startTime}")
 
-options : PipelineOptions = PipelineOptions(
+# DirectRunner
+""" options : PipelineOptions = PipelineOptions(
     streaming=True,
     runner="DirectRunner"
+) """
+
+#check java path(debug)
+""" print(f"Java Path: {os.getenv('JAVA_HOME')}")
+print(f"Path: {os.getenv('PATH')}") 
+exit(1)
+ """
+
+#Flink runner
+options : PipelineOptions = PipelineOptions(
+    streaming=True,
+    runner="FlinkRunner",
+    environment_type="LOOPBACK",
+    flink_master="localhost:8081",
+    checkpointing_interval=50
 )
 
 class ToBigTableRowDynamic(beam.DoFn):
@@ -53,7 +67,7 @@ class ToBigTableRowDynamic(beam.DoFn):
         #all messages will have attribute "relation" -> defines bigtable table
         table_id = data["relation"]
         row = DirectRow(row_key=row_key)
-        print(f"Writing to BigTable relation:{table_id}  key:{data["id"]}...")
+        print(f"Writing to BigTable relation:{table_id}  key:{data['id']}...")
         for k, v in data.items():
             if k != "id":
                 row.set_cell("cf1", k, str(v).encode("utf-8"))
@@ -72,14 +86,21 @@ class WriteTableFn(beam.DoFn):
 def main():
     try:
         with beam.Pipeline(options=options) as p:
-            (
+            table_rows = (
                 p
                 | "ReadFromPubSub" >> ReadFromPubSub(topic=topic, with_attributes=True)
                 | "WindowIntoFixed" >> beam.WindowInto(beam.window.FixedWindows(3))  #streaming-window:3s
                 | "ToBigTableRow" >> beam.ParDo(ToBigTableRowDynamic())
                 | "GroupByTable" >> beam.GroupByKey()
-                | "WriteAllTables" >> beam.ParDo(WriteTableFn())
+                # | "WriteAllTables" >> beam.ParDo(WriteTableFn())
             )
+            table_rows | beam.FlatMap(lambda row: WriteToBigTable(
+                project_id=project_id,
+                instance_id=instance_id,
+                table_id=tr[0]
+            ).expand(row[1]))
+        
+            
     except KeyboardInterrupt:
         endTime = getNowTime()
         print(f"\nStarted at: {startTime}\nEnded at: {endTime}\nPipeline Complete!", file=sys.__stdout__,flush=True)

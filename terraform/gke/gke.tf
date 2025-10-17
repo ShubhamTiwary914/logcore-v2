@@ -1,6 +1,6 @@
 resource "google_container_cluster" "default" {
     name     = "logcorek8s"
-    location = "us-central1"
+    location = var.region
     enable_autopilot = true
     network = google_compute_network.logcore-net.id
     subnetwork = google_compute_subnetwork.logcore-lowa-subnet.id

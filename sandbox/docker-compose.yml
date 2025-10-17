@@ -44,14 +44,6 @@ services:
     environment:
       - PROJECT_ID=gcplocal-emulator
 
-
-  locust-tester:
-    build:
-      context: ./locust
-      dockerfile: Dockerfile
-    ports:
-      - 8089:8089
-
   prom-server:
     image: prom/prometheus
     ports:

@@ -1,7 +1,5 @@
 version: '3'
-
 dotenv: ['.tf.env']
-
 
 env:
   MONITOR_NAMESPACE: observe
@@ -11,15 +9,6 @@ env:
   PROD_PATH: ./k8s/prod
 
 tasks:
-  testcmd:
-    cmds:
-      - |
-        set -- {{.CLI_ARGS}}
-        arg1=$1
-        arg2=$2
-        arg3=$3
-        echo command --flag1 "$arg1" --flag2 "$arg2" --flag3 "$arg3"
-
   # / ======== \
   #   region DEV  
   # \ ======== /
@@ -99,6 +88,11 @@ tasks:
     cmds: 
       - helm install verne verne/verne -n verne -f ./dev-values.yaml
 
+  verne-helm-deploy-prod:
+    desc: install verne helm package for prod (GKE cluster)
+    cmds: 
+      - helm install verne verne/verne -n verne -f ./k8s/prod/verne/prod-values.yaml
+
   verne-get-ip:
     desc: get verne broker load balancer IP to access 
     cmds:
@@ -110,6 +104,12 @@ tasks:
     cmds:
       - bash -c "./k6-run.sh {{.CLI_ARGS}}"
 
+  _run-k6-prod:
+    dir: ./scripts/
+    desc: load test verneMQTT k3s with k6 [ARGS- duration(secs), vus]
+    cmds:
+      - bash -c "./k6-prodrun.sh {{.CLI_ARGS}}"
+      
   k6-build:
     dir: ./services/k6
     desc: rebuild the k6 source image from Dockerfile
@@ -206,7 +206,6 @@ tasks:
       - zsh -i -c "conda activate logcore && python sub.py" 
 
   
-      
   # / ======== \
   #   region PROD 
   # \ ======== /
@@ -220,23 +219,43 @@ tasks:
     cmds:
       - terraform plan
    
-  tf-apply:
+  tf-apply-all:
     dir: ./terraform
     cmds:
       - terraform apply 
-  
-  tf-apply-debug:
+      
+  tf-apply-single:
     dir: ./terraform
+    desc: apply changes on a single resource
+    cmds:
+      - terraform apply -target={{.CLI_ARGS}}
+
+  tf-get-outs:
+    dir: ./terraform
+    desc: get outputs
+    cmds: 
+      - terraform output -json > outputs.json
+
+  tf-apply-phase-pipeline:
+    dir: ./terraform
+    desc: apply changes on pipeline phase only
+    cmds:
+      - terraform apply -target=module.pipeline-phase
+  
+  tf-apply-all-debug:
+    dir: ./terraform
+    desc: apply changes (debug mode-saved to ./tf-debug.log) + auto-approve
     cmds:
       - TF_LOG=DEBUG TF_LOG_PATH=./tf-debug.log terraform apply -auto-approve
   
   tf-destroy-all:
     dir: ./terraform
     cmds:
-      - terraform destroy 
+      - terraform destroy {{.CLI_ARGS}} 
       
   tf-destroy-single:
     dir: ./terraform
+    desc:  delete a single resource [ARGS- resource]
     cmds:
       - terraform destroy -target={{.CLI_ARGS}}  
    
@@ -244,3 +263,5 @@ tasks:
     dir: ./terraform
     cmds:
       - terraform state list
+
+  

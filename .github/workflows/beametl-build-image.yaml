@@ -1,0 +1,55 @@
+name: Build beam-pipeline Image & push to dockerhub 
+run-name: beamETL image build on ${{ github.event_name }} by ${{ github.actor }}
+on:  
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'services/beampipeline/**'
+  workflow_dispatch:
+    
+jobs:
+  build-k6:
+    name: Push beam-pipeline's Image to DockerHub
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps: 
+      - name: Check out the repo
+        uses: actions/checkout@v5
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: extractor
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.BEAMETL_IMAGE }}
+          labels: |
+            org.opencontainers.image.description=updated on $(date +'%Y-%m-%d') - K6 load testing tool to work with logcore-v2 project (makes MQTT calls to verne-broker)
+          
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/beampipeline
+          file: ./services/beampipeline/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.BEAMETL_IMAGE }}:latest 
+          labels: ${{ steps.extractor.outputs.labels }}
+      
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: index.docker.io/${{ secrets.BEAMETL_IMAGE }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: false 
+      
