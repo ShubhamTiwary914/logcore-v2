@@ -3,12 +3,12 @@ entries:
   verne:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-18T09:13:41.693538904Z"
+    created: "2025-10-18T09:44:29.710583485Z"
     description: verneMQ helm chart - for setting up verneMQ namespace
-    digest: 9145dd9bd352cfde3a05942c36975efb9d6b6d870e015456784f1a4bb3e24fa4
+    digest: 38c0fcdd5bc9cb1e92c51f329e900d668943ead075054dbed881d12b326f15c9
     name: verne
     type: application
     urls:
     - https://raw.githubusercontent.com/ShubhamTiwary914/logcore-v2/charts/verne/verne-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-18T09:13:41.693188016Z"
+generated: "2025-10-18T09:44:29.710209527Z"
