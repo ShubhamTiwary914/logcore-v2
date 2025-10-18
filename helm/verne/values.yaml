@@ -1,7 +1,7 @@
 replicaCount: 2
 env: dev 
 namespace: verne
-image: sardinesszsz/verne-listener:latest 
+image: sardinesszsz/verne-listener:latest
 
 verneConfig:
   acceptEula: "yes"

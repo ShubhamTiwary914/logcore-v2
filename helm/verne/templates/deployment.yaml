@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/helmfile
-#vernMQTT pods deployment config with sidecar for listener
-#listener -> a golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
-
+# vernMQTT pods deployment config with sidecar for listener
+# listener -> golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -118,3 +118,4 @@ spec:
           volumeMounts:
           - name: envs
             mountPath: /envs
+---

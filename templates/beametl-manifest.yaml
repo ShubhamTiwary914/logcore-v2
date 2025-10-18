@@ -1,0 +1,38 @@
+---
+# Source: beametl/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beametl-pod
+  namespace: beametl
+  labels: 
+    app: beampod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beampod
+  template:
+    metadata:
+      labels:
+        app: beampod 
+    spec:
+      containers:
+        #assumes GCP ADC is provided on the GKE cluster's pods for pubsub/bigtable access
+        - name: beametl-container
+          image: sardinesszsz/beametl-pubsub-to-cbt:latest
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "2"
+            limits:
+              memory: "1.5Gi"
+              cpu: "4"
+---
+# Source: beametl/templates/deployment.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+# beam streaming pipeline with DirectRunner to connect pubsub <-> bigtable
+# flow:
+# - source: pubsub(topic: mqtt-source) 
+# - transformation: col families: payload,relation, convert to cbt object
+# - sink: cbt(relation: iotsink)

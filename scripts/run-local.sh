@@ -35,7 +35,7 @@ docker pull sardinesszsz/verne-listener:latest
 
 # Add Helm repositories
 log_info "Adding Helm repositories..."
-helm repo add verne https://raw.githubusercontent.com/ShubhamTiwary914/logcore-v2/charts/ 2>/dev/null || log_skip "Verne repo already added"
+helm repo add verne https://raw.githubusercontent.com/ShubhamTiwary914/logcore-v2/charts/verne 2>/dev/null || log_skip "Verne repo already added"
 helm repo add grafana https://grafana.github.io/helm-charts 2>/dev/null || log_skip "Grafana repo already added"
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 2>/dev/null || log_skip "Prometheus repo already added"
 helm repo update

@@ -77,10 +77,6 @@ spec:
       targetPort: 8888
 ---
 # Source: verne/templates/deployment.yaml
-# yaml-language-server: $schema=https://json.schemastore.org/helmfile
-#vernMQTT pods deployment config with sidecar for listener
-#listener -> a golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,7 +85,7 @@ metadata:
   labels:
     app: broker
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: broker
@@ -121,10 +117,10 @@ spec:
           resources:
             requests:
               memory: "512Mi"
-              cpu: "2"
+              cpu: "1"
             limits:
-              memory: "1.5Gi"
-              cpu: "4"
+              memory: "1Gi"
+              cpu: "2"
           ports:
             - name: tcpline
               containerPort: 1883 
@@ -168,3 +164,8 @@ spec:
           volumeMounts:
           - name: envs
             mountPath: /envs
+---
+# Source: verne/templates/deployment.yaml
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+# vernMQTT pods deployment config with sidecar for listener
+# listener -> golang script (just intake message bytes) -> push to output stream (in this case, pub/sub)
