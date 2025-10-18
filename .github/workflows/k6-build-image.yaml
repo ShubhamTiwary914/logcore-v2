@@ -43,7 +43,7 @@ jobs:
           file: ./services/k6/Dockerfile
           push: true
           tags: |
-            sardinesszsz/k6-verne:latest 
+            ${{ secrets.K6_IMAGE }}:latest 
           labels: ${{ steps.extractor.outputs.labels }}
       
       - name: Generate artifact attestation

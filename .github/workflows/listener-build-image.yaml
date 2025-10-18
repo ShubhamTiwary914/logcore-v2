@@ -52,7 +52,7 @@ jobs:
           file: ./services/listener/Dockerfile
           push: true
           tags: |
-            sardinesszsz/verne-listener:latest 
+            ${{ secrets.LISTENER_IMAGE }}:latest 
           labels: ${{ steps.extractor.outputs.labels }}
 
       - name: Generate artifact attestation
