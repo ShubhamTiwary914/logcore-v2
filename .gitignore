@@ -5,3 +5,7 @@
 **/node_modules
 **/graf-data
 **/*.log
+
+terraform/**.tfstate*
+terraform/.terraform
+terraform/**.lock*

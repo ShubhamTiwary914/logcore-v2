@@ -1,0 +1,11 @@
+namespace: beametl
+replicaCount: 1
+image: sardinesszsz/beametl-pubsub-to-cbt:latest
+
+resourceOptions:
+  requests:
+    memory: "512Mi"
+    cpu: "2"
+  limits:
+    memory: "1.5Gi"
+    cpu: "4"

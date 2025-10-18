@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+# beam streaming pipeline with DirectRunner to connect pubsub <-> bigtable
+# flow context:
+# - source: pubsub(topic: mqtt-source) 
+# - transformation: col families: payload,relation, convert to cbt object
+# - sink: cbt(relation: iotsink)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beametl-pod
+  namespace: {{ .Values.namespace }}
+  labels: 
+    app: beampod
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: beampod
+  template:
+    metadata:
+      labels:
+        app: beampod 
+    spec:
+      containers:
+        #assumes GCP ADC is provided on the GKE cluster's pods for pubsub/bigtable access
+        - name: beametl-container
+          image: {{ .Values.image }}
+          resources:
+          {{- with .Values.resourceOptions }}
+            requests:
+              {{- with .requests }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+            limits:
+              {{- with .limits }}
+              memory: {{ .memory | quote }}
+              cpu: {{ .cpu | quote }}
+              {{- end }}
+          {{- end }}
+---
