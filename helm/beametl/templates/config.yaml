@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata: 
   name: beametl-conf
   namespace: {{ .Values.namespace }}
-spec:
-  data: 
-    PROJECT: {{ .Values.config.project }}
-    TOPIC: {{ .Values.config.mqtt_topic }}
-    INSTANCE: {{ .Values.config.cbt_instance }}
-    TABLE: {{ .Values.config.cbt_table }}
+
+data: 
+  PROJECT: {{ .Values.config.project | quote }}
+  TOPIC: {{ .Values.config.mqtt_topic | quote }}
+  INSTANCE: {{ .Values.config.cbt_instance | quote }}
+  TABLE: {{ .Values.config.cbt_table | quote }}

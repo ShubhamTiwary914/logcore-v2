@@ -5,7 +5,13 @@ image: sardinesszsz/beametl-pubsub-to-cbt:latest
 resourceOptions:
   requests:
     memory: "512Mi"
-    cpu: "2"
+    cpu: "1"
   limits:
     memory: "1.5Gi"
-    cpu: "4"
+    cpu: "2"
+
+config:
+  project: quick-sonar-469406-j1
+  mqtt_topic: projects/quick-sonar-469406-j1/topics/mqtt-source
+  cbt_instance: logcorebt
+  cbt_table: iotsink
