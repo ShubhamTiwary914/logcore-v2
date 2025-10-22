@@ -94,15 +94,20 @@ tasks:
     cmds: 
       - helm install verne verne/verne -n verne -f ./dev-values.yaml
 
-  verne-helm-deploy-prod:
+  helm-verne-deploy-prod:
     desc: deploy verne helm package for prod (GKE cluster)
     cmds: 
       - helm install verne verne/verne -n verne -f ./k8s/prod/verne/prod-values.yaml
 
-  beametl-helm-deploy-prod:
+  helm-beametl-deploy-prod:
     desc: deploy beametl helm package for prod (GKE cluster)
     cmds:
       - helm install beametl beametl/beametl -n beametl -f ./k8s/prod/beametl/values.yaml
+
+  helm-beametl-update-prod:
+    desc: update beametl after values/chart changes in helm
+    cmds:
+      - helm upgrade beametl beametl/beametl -n beametl -f ./k8s/prod/beametl/values.yaml
 
   verne-get-ip:
     desc: get verne broker load balancer IP to access 

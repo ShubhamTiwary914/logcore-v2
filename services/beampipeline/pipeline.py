@@ -57,7 +57,7 @@ def getargs():
 
 def main():
     # (optional - auth with credentials sa file) (recommended - ADC)
-    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "<path-to-sa-credentials>"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/secrets/ac.json"
     known_args, pipeline_args = getargs()
     pipeOpts = PipelineOptions(
         streaming=True,
@@ -81,4 +81,5 @@ def main():
                 table_id=known_args.table)
         )
         
+
 main()

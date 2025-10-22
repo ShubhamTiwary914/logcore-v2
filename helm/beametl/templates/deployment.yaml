@@ -22,10 +22,19 @@ spec:
       labels:
         app: beampod 
     spec:
+      volumes:
+      - name: servacc-vol
+        secret:
+          secretName: servacc-creds
       containers:
         #assumes GCP ADC is provided on the GKE cluster's pods for pubsub/bigtable access
         - name: beametl-container
           image: {{ .Values.image }}
+          #requires a file named "/secrets/ac.json" with service-acc creds
+          volumeMounts:
+          - name: servacc-vol
+            mountPath: /secrets
+            readOnly: true
           resources:
           {{- with .Values.resourceOptions }}
             requests:
@@ -41,5 +50,5 @@ spec:
           {{- end }}
           envFrom:
           - configMapRef:
-              name: beametl-conf
+              name: beametl-conf 
 ---
