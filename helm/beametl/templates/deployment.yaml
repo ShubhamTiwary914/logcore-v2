@@ -39,4 +39,7 @@ spec:
               cpu: {{ .cpu | quote }}
               {{- end }}
           {{- end }}
+          envFrom:
+          - configMapRef:
+              name: beametl-conf
 ---

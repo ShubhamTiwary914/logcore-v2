@@ -65,7 +65,6 @@ tasks:
       - helm template grafana grafana/grafana --values ./k8s/dev/observe/values/graf.yaml --debug > ./templates/observe/graf-dev-manifest.yaml
       - helm template loki grafana/loki --values ./k8s/dev/observe/values/loki.yaml --debug > ./templates/observe/loki-dev-manifest.yaml
       - helm template prom prometheus-community/prometheus --values ./k8s/dev/observe/values/prom.yaml --debug > ./templates/observe/prom-dev-manifest.yaml
-      
 
   observe-grafana-access-local:
     desc: access the grafana web ui (get address & details)
@@ -96,9 +95,14 @@ tasks:
       - helm install verne verne/verne -n verne -f ./dev-values.yaml
 
   verne-helm-deploy-prod:
-    desc: install verne helm package for prod (GKE cluster)
+    desc: deploy verne helm package for prod (GKE cluster)
     cmds: 
       - helm install verne verne/verne -n verne -f ./k8s/prod/verne/prod-values.yaml
+
+  beametl-helm-deploy-prod:
+    desc: deploy beametl helm package for prod (GKE cluster)
+    cmds:
+      - helm install beametl beametl/beametl -n beametl -f ./k8s/prod/beametl/values.yaml
 
   verne-get-ip:
     desc: get verne broker load balancer IP to access 

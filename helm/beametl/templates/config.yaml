@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: beametl-conf
+  namespace: {{ .Values.namespace }}
+spec:
+  data: 
+    PROJECT: {{ .Values.config.project }}
+    TOPIC: {{ .Values.config.mqtt_topic }}
+    INSTANCE: {{ .Values.config.cbt_instance }}
+    TABLE: {{ .Values.config.cbt_table }}
