@@ -80,6 +80,7 @@ spec:
 
         - name: listener
           image: {{ .Values.image }} 
+          imagePullPolicy: Always
           resources:
           {{- with .Values.resourceOptions.listener }}
             requests:

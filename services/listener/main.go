@@ -67,7 +67,6 @@ func localConfigs() {
 	}
 	hostIP := string(utils.TrimSpace(data))
 	pubsubHost = utils.Sprintf("%s:%s", hostIP, pubsubPort)
-
 	if err := os.Setenv("PUBSUB_EMULATOR_HOST", pubsubHost); err != nil {
 		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to set emulator HOST: %v", err))
 	}
@@ -123,7 +122,10 @@ func ConnectMQTT() *mqtt.ClientOptions {
 
 func SubscribeMQTT(client mqtt.Client) {
 	token := client.Subscribe(MqttTopicPath, QOS, mqttMessageHandler)
-	token.Wait()
+	if token.Wait() && token.Error() != nil {
+		utils.Log(utils.LOG_ERROR, utils.Sprintf("MQTT subscribe failed: %v", token.Error()))
+		panic(token.Error())
+	}
 	utils.Log(utils.LOG_DEBUG, utils.Sprintf("subscribed to MQTT topic: %s", MqttTopicPath))
 }
 
@@ -176,6 +178,21 @@ func confPubSub(projectID string) (context.Context, *pubsub.Client) {
 }
 
 func publishTopic(msg []byte) {
-	publisher.Publish(pubctx, &pubsub.Message{Data: msg})
-	utils.Log(utils.LOG_INFO, utils.Sprintf("queued message for publishing to pubsub: %s", msg))
+	payload := append([]byte(nil), msg...)
+	utils.Log(utils.LOG_INFO, utils.Sprintf("queued message for publishing to pubsub.... %s", string(payload)))
+	utils.Log(utils.LOG_DEBUG, utils.Sprintf("queued message bytes: %v", payload))
+
+	// publish and ack
+	result := publisher.Publish(pubctx, &pubsub.Message{Data: payload})
+	id, err := result.Get(pubctx)
+	if err != nil {
+		utils.Log(utils.LOG_ERROR, utils.Sprintf("failed to publish to pubsub: %v", err))
+		return
+	}
+	utils.Log(utils.LOG_INFO, utils.Sprintf("message published to pubsub with id: %s", id))
 }
+
+// func publishTopic(msg []byte) {
+// 	publisher.Publish(pubctx, &pubsub.Message{Data: msg})
+// 	utils.Log(utils.LOG_INFO, utils.Sprintf("queued message for publishing to pubsub: %s", msg))
+// }

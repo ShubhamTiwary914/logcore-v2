@@ -29,6 +29,7 @@ spec:
       containers:
         #assumes GCP ADC is provided on the GKE cluster's pods for pubsub/bigtable access
         - name: beametl-container
+          imagePullPolicy: Always
           image: {{ .Values.image }}
           #requires a file named "/secrets/ac.json" with service-acc creds
           volumeMounts:
