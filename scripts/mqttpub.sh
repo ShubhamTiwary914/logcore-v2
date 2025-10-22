@@ -1,5 +1,6 @@
 #!/bin/bash
 #NOTE: now replaced with k6 (this the old version for ref.)
+#dep: hiveMQ MQTT cli2
 TABLE=$1
 COUNT=${2:-1}
 SCHEMA_FILE="./schemas.json"

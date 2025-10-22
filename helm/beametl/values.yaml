@@ -12,6 +12,6 @@ resourceOptions:
 
 config:
   project: quick-sonar-469406-j1
-  mqtt_topic: projects/quick-sonar-469406-j1/topics/mqtt-source
+  mqtt_topic: projects/quick-sonar-469406-j1/topics/source
   cbt_instance: logcorebt
   cbt_table: iotsink

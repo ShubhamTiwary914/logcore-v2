@@ -115,7 +115,7 @@ func main() {
 func ConnectMQTT() *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(utils.Sprintf("tcp://%s:%d", Broker, Port))
-	opts.SetDefaultPublishHandler(mqttMessageHandler)
+	// opts.SetDefaultPublishHandler(mqttMessageHandler)
 	opts.OnConnect = mqttConnectHandler
 	opts.OnConnectionLost = mqttConnectLostHandler
 	return opts
@@ -148,9 +148,10 @@ func logSuccess(statusFile string) {
 }
 
 var mqttMessageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	utils.Log(utils.LOG_INFO, utils.Sprintf("received message in topic: %s: %s", msg.Topic(), msg.Payload()))
+	payload := append([]byte(nil), msg.Payload()...)
+	utils.Log(utils.LOG_INFO, utils.Sprintf("received message in topic: %s: %s", msg.Topic(), string(payload)))
 	//offload push to publish channel
-	pubJobs <- PublishJob{message: msg.Payload()}
+	pubJobs <- PublishJob{message: payload}
 }
 
 var mqttConnectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
