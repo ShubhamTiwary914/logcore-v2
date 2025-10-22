@@ -12,8 +12,8 @@ RUN apk add --no-cache curl \
 #default envs
 ENV RELATION=weather_sensor
 ENV INTERVAL=1
-ENV DURATION=30
+ENV DURATION=10
 ENV VUS=10
 
 #gotta pass "VERNE_IP" env during container creation -> points to the K8s load balancer for verneMQTT
-ENTRYPOINT [ "sh", "-c", "RELATION=$RELATION DURATION=$DURATION INTERVAL=$INTERVAL VERNE_IP=$VERNE_IP /app/k6 run --vus $VUS --duration ${DURATION}s /app/pub.js" ]
+ENTRYPOINT [ "sh", "-c", "RELATION=$RELATION DURATION=$DURATION INTERVAL=$INTERVAL VERNE_IP=$VERNE_IP VUS=$VUS /app/k6 run --vus $VUS --duration ${DURATION}s /app/pub.js" ]

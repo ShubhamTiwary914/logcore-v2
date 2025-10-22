@@ -51,6 +51,18 @@ const messageBytes = new Trend("mqtt_message_bytes");
 const mqttConnections = new Counter("mqtt_concurrent_connections")
 
 
+export function setup(){
+  console.log(`
+    Running K6 Load test with ARGS: 
+    Duration: ${__ENV.DURATION}s
+    Interval: ${__ENV.INTERVAL}s
+    Virtual Users: ${__ENV.VUS}
+    Verne Broker Address: ${__ENV.VERNE_IP}
+    \n
+  `)
+}
+
+
 export default function () {
   const client = new Client()
   const relation = getRelation()
@@ -58,7 +70,6 @@ export default function () {
   client.on("connect", () => {
     mqttConnections.add(1)
     console.log(`User(${__VU}): Connected to MQTT broker`)
-    
 
     const intervalId = setInterval(() => {
       let payload = generatePayload(relation)
@@ -125,6 +136,7 @@ function generatePayload(relation) {
   schema.forEach((col) => {
     obj[col.name] = generateValue(col.type, relation);
   });
+  obj["relation"] = relation
   return JSON.stringify(obj);
 }
 

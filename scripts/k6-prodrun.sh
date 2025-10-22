@@ -18,7 +18,7 @@ VERNE_IP=$(kubectl get svc -n verne vernemq-broker -o jsonpath='{.status.loadBal
 log_info "Running K6 Load on verneIP (external LB): ${VERNE_IP}"
 
 docker run --rm --network host \
-  -e RELATION=weather_sensor \
+  -e RELATION=machine_metrics\
   -e DURATION="$DURATION" \
   -e INTERVAL=1 \
   -e VUS="$VUS" \
