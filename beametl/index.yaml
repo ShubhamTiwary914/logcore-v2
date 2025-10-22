@@ -3,12 +3,12 @@ entries:
   beametl:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-10-22T06:57:29.966625378Z"
+    created: "2025-10-22T07:55:55.989639056Z"
     description: BeamETL pipeline Kubernetes deployment helm chart
-    digest: 0b8ca39eaf9e7e0bfe66fd4cb1e99f8235074d92c714d79cc2c0cf0b34654340
+    digest: 1225032ffc503833c4665d86914cd39fcf4e72bab27496d4b130770ec8a206be
     name: beametl
     type: application
     urls:
     - https://raw.githubusercontent.com/ShubhamTiwary914/logcore-v2/charts/beametl/beametl-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-22T06:57:29.966319405Z"
+generated: "2025-10-22T07:55:55.989310248Z"
